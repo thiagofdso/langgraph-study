@@ -1,0 +1,24 @@
+.gemini
+.codex
+.specify
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+*.egg-info/
+.pytest_cache/
+
+# Universal
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
+
+# Temporary ripgrep download directories
+download-ripgrep*/
