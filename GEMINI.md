@@ -12,6 +12,7 @@ Auto-generated from all feature plans. Last updated: 2025-10-27
 - Python 3.11 + langgraph, google-generativeai, python-dotenv, langchain-google-genai, langchain (for tools), mcp-langgraph (005-mcp-agent)
 - Python 3.11 + langgraph, google-generativeai, python-dotenv, langchain-google-genai, langchain, langchain-core, langchain-community (Langgraph handles router agents via conditional edges and global memory via checkpointers like InMemorySaver, which is part of langgraph. No additional core dependencies are immediately required for these functionalities.) (001-router-persona-agent)
 - In-memory state management for Langgraph (001-router-persona-agent)
+- Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`, `langchain-google-genai` (001-multimodal-mindmap-agent)
 
 - Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv` (001-simple-hello-agent)
 
@@ -31,9 +32,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.11: Follow standard conventions
 
 ## Recent Changes
+- 001-multimodal-mindmap-agent: Added Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`, `langchain-google-genai`
 - 001-router-persona-agent: Added Python 3.11 + langgraph, google-generativeai, python-dotenv, langchain-google-genai, langchain, langchain-core, langchain-community (Langgraph handles router agents via conditional edges and global memory via checkpointers like InMemorySaver, which is part of langgraph. No additional core dependencies are immediately required for these functionalities.)
 - 005-mcp-agent: Added Python 3.11 + langgraph, google-generativeai, python-dotenv, langchain-google-genai, langchain (for tools), mcp-langgraph
-- 005-mcp-agent: Added Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`, `langchain-google-genai`, `langchain` (for tools), `mcp-langgraph` (from the provided project)
 
 
 <!-- MANUAL ADDITIONS START -->

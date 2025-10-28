@@ -1,50 +1,72 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+Version change: 1.1.0 -> 1.2.0
+List of modified principles: XIV. Specification-Driven Development (added)
+Added sections: XIV. Specification-Driven Development
+Removed sections: None
+Templates requiring updates: 
+- .specify/templates/plan-template.md ⚠ pending
+- .specify/templates/spec-template.md ⚠ pending
+- .specify/templates/tasks-template.md ⚠ pending
+- .specify/templates/commands/*.md ⚠ pending
+Follow-up TODOs: None
+-->
+# Langgraph Agent Development Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Main File for Testing
+Every project's `main` file MUST serve as an executable entry point for demonstrating and testing the core functionality of the agent.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Continuous Learning & Best Practices
+Developers MUST actively research and apply best practices for libraries and frameworks, leveraging internet resources to ensure high-quality and efficient solutions.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Focused Testing Strategy
+Tests SHOULD NOT be created for the non-deterministic functionalities of LLMs and agents themselves. Instead, focus on testing the integration, data flow, and deterministic components of the agent system.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Standard LLM Model
+All agents MUST utilize `gemini-2.5-flash` as the default Large Language Model for consistency and performance.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Standard Agent Framework
+`langgraph` MUST be used as the primary framework for agent development and orchestration.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### VI. Code Simplicity
+Code MUST be kept simple, readable, and maintainable, adhering to the YAGNI (You Ain't Gonna Need It) principle.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### VII. Documentation & Comments
+Code MUST be adequately documented and commented, explaining *why* certain decisions were made, especially for complex logic.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### VIII. Python Development Standards
+All development MUST be in Python, utilizing `venv` for virtual environments. Dependencies MUST be managed via `requirements.txt`, avoiding version pinning where possible and refraining from removing dependencies without explicit justification.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### IX. Change Approval Process
+Approval MUST be sought for significant changes during the implementation phase, especially those impacting scope, architecture, or user experience.
+
+### X. Project Module Structure
+Avoid nested module folders within projects. Instead, leverage `PYTHONPATH` to include project roots for module resolution (e.g., `PYTHONPATH=./my_project python my_project/main.py`).
+
+### XI. Relative Path Usage
+Relative paths SHOULD be preferred over absolute paths for file and module references to enhance portability and maintainability.
+
+### XII. Environment Configuration
+New projects MUST copy the `.env` file from the `agente_simples` folder to ensure consistent environment variable management.
+
+### XIII. Preferred Research Tools
+`mcp` (Context7) SHOULD be used for documentation lookup, and `perplexity` for general internet research. `google_web_search` and `web_fetch` serve as fallback tools.
+
+### XIV. Specification-Driven Development
+All features MUST be developed using a specification-driven approach, leveraging the `.specify` framework for clear requirements, planning, and task generation.
+
+## Development Guidelines
+
+All development activities should adhere to the principles outlined above, ensuring consistency and quality across all projects.
+
+## Workflow and Approvals
+
+Significant changes require approval. The process for seeking approval will be defined as part of the project's overall workflow documentation.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This Constitution supersedes all other practices. Amendments require documentation, approval, and a migration plan. All pull requests and code reviews MUST verify compliance with these principles. Complexity MUST be justified.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.2.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-10-28

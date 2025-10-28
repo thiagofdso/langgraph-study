@@ -9,3 +9,5 @@ mcp
 python-dotenv
 pytest
 pytest-asyncio
+Pillow
+pytesseract
