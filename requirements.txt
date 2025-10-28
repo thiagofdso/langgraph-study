@@ -1,5 +1,10 @@
-langgraph
+asyncio
 google-generativeai
+langchain
+langchain-core
+langchain-google-genai
+langchain-mcp-adapters
+langgraph
+mcp
 python-dotenv
 pytest
-langchain-google-genai
