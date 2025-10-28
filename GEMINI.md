@@ -35,9 +35,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.11: Follow standard conventions
 
 ## Recent Changes
+- 008-multi-agent-orchestration-report: Added Python 3.11 + langgraph, google-generativeai, python-dotenv, langchain-google-genai, langchain
 - 001-multi-agent-parallel-content: Added Python 3.11 + langgraph, google-generativeai, python-dotenv, langchain-google-genai, langchain
 - 006-pdf-analyzer-agent: Added Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`, `langchain-google-genai`, `base64` (built-in Python library for PDF to base64 conversion).
-- 001-multimodal-mindmap-agent: Added Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`, `langchain-google-genai`
 
 
 <!-- MANUAL ADDITIONS START -->
