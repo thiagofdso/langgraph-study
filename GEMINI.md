@@ -5,6 +5,7 @@ Auto-generated from all feature plans. Last updated: 2025-10-27
 ## Active Technologies
 - Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`, `langchain-google-genai` (002-memory-agent)
 - `langgraph` for in-memory state management (for this simple case) (002-memory-agent)
+- Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`, `langchain-google-genai`, `langchain` (for tools) (003-calculator-agent)
 
 - Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv` (001-simple-hello-agent)
 
@@ -24,6 +25,7 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.11: Follow standard conventions
 
 ## Recent Changes
+- 003-calculator-agent: Added Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`, `langchain-google-genai`, `langchain` (for tools)
 - 002-memory-agent: Added Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`, `langchain-google-genai`
 
 - 001-simple-hello-agent: Added Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`
