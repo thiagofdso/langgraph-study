@@ -1,0 +1,1 @@
+# This file is now empty as pdf_to_base64 is no longer used.
