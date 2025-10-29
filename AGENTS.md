@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2025-10-29
 
 ## Active Technologies
+- Python 3.12.3 (repo virtualenv) + langgraph, langchain-core, sqlite3 (stdlib), tabulate/markdown handling TBD (likely use `textwrap` or manual formatting) (011-sqlite-sales-agent)
+- Local SQLite database file within `agente_banco_dados` (011-sqlite-sales-agent)
 
 - Python 3.12.3 (repo virtualenv) + langgraph; langchain-core; google-generativeai; langchain-tavily (010-web-search-agent)
 
@@ -23,6 +25,7 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12.3 (repo virtualenv): Follow standard conventions
 
 ## Recent Changes
+- 011-sqlite-sales-agent: Added Python 3.12.3 (repo virtualenv) + langgraph, langchain-core, sqlite3 (stdlib), tabulate/markdown handling TBD (likely use `textwrap` or manual formatting)
 
 - 010-web-search-agent: Added Python 3.12.3 (repo virtualenv) + langgraph; langchain-core; google-generativeai; langchain-tavily
 
