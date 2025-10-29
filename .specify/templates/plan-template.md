@@ -49,28 +49,24 @@ specs/[###-feature]/
 
 ### Source Code (repository root)
 <!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
+  ACTION REQUIRED: Descreva como o repositório está organizado hoje.
+  Cada diretório de primeiro nível representa um projeto/experimento independente.
+  Ajuste a árvore listando apenas os diretórios relevantes para esta feature.
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
+agente_simples/            # Projeto de exemplo; projetos incluem __init__.py, main.py, .env, README.md etc.
+agente_tool/
+agente_web/                # (Adicionar/atualizar conforme a feature)
+...
+external_docs/             # Documentações coletadas via Context7
+research/                  # Pesquisas e anotações de Perplexity ou web search
+tests/                     # Conjunto de testes por projeto (quando aplicável)
+requirements.txt           # Dependências compartilhadas na raiz (alguns projetos têm o próprio requirements.txt)
+venv/                      # Ambiente virtual Python usado em todos os projetos
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: [Explique quais diretórios/projetos serão criados ou modificados para esta feature e como se integram ao padrão acima]
 
 ## Complexity Tracking
 

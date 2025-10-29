@@ -4,6 +4,7 @@ langchain
 langchain-core
 langchain-google-genai
 langchain-mcp-adapters
+langchain-tavily
 langgraph
 mcp
 python-dotenv
