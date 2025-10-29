@@ -16,6 +16,8 @@ Auto-generated from all feature plans. Last updated: 2025-10-27
 - Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`, `langchain-google-genai`, `base64` (built-in Python library for PDF to base64 conversion). (006-pdf-analyzer-agent)
 - In-memory state management (for this simple agent). (006-pdf-analyzer-agent)
 - N/A (in-memory state) 007-multi-agent-parallel-content
+- Python 3.11 + `docling`, `langgraph` (009-pdf-to-md-converter)
+- Filesystem (009-pdf-to-md-converter)
 
 - Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv` (001-simple-hello-agent)
 
@@ -35,9 +37,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.11: Follow standard conventions
 
 ## Recent Changes
+- 009-pdf-to-md-converter: Added Python 3.11 + `docling`, `langgraph`
 - 008-multi-agent-orchestration-report: Added Python 3.11 + langgraph, google-generativeai, python-dotenv, langchain-google-genai, langchain
 - 001-multi-agent-parallel-content: Added Python 3.11 + langgraph, google-generativeai, python-dotenv, langchain-google-genai, langchain
-- 006-pdf-analyzer-agent: Added Python 3.11 + `langgraph`, `google-generativeai`, `python-dotenv`, `langchain-google-genai`, `base64` (built-in Python library for PDF to base64 conversion).
 
 
 <!-- MANUAL ADDITIONS START -->

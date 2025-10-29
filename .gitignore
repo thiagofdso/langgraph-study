@@ -21,4 +21,4 @@ Thumbs.db
 .idea/
 
 # Temporary ripgrep download directories
-download-ripgrep*/
+download-ripgrep*/pdf_to_md/*.md

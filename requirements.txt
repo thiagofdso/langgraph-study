@@ -12,4 +12,4 @@ pytest-asyncio
 Pillow
 pytesseract
 langchain_community
-pypdf
+docling
