@@ -24,3 +24,7 @@ Thumbs.db
 download-ripgrep*/pdf_to_md/*.md
 pdf_to_md/*.md
 agente_web/smoke_test_output.txt
+
+# SQLite study agent
+agente_banco_dados/data/*.db
+

@@ -1,14 +1,17 @@
 ### Exemplos Intermediários para Aprender LangGraph
 
-- **Agente para Busca Web e Resumo**: Crie na pasta agente_web um agente que realiza uma pesquisa na web baseada em uma pergunta do usuário, coleta resultados e gera um resumo simples.[3][1]
+- **Agente FAQ Interativo**: Quero um projeto para estudo. Crie na pasta agente_perguntas um agente que responde perguntas frequentes a partir de um arquivo/fonte fixa, identificando se uma dúvida precisa de encaminhamento para humano. Elabore um FAQ ficticio para ser usado. O programa deve conter 2 perguntas que o agente consegue responder com esse FAQ e uma terceira pergunta que requer encaminhamento para um humano.
 
-Detalhes técnicos usar tool tavity.
+[4]
 
-- **Agente Consultor de Base de Dados Fixa**: Cre na pasta agente_banco_dados um agente que responde exclusivamente baseado em uma base de dados local (documento CSV, JSON ou SQLite) sem acesso externo.[4][5]
+Use langgraph, consulte a documentação do langgraph external_docs/langgraph_docs.md sobre praticas de uso do framework. O FAQ deve ser inserido direto no prompt. Faça uma pesquisa sobre como fazer o encaminhamento para humano usando langgraph usando perplexity. O código deve ser simples, um arquivo para montar o prompt e outro com o main, a saida deve ser no console. Verifique como poderia ser o teste de inserir o humano e documente. Não quero testes unitários nem de integração.
 
-- **Agente FAQ Interativo**: Crie na pasta agente_perguntas um agente que responde perguntas frequentes a partir de um arquivo/fonte fixa, identificando se uma dúvida precisa de encaminhamento para humano.[4]
 
-- **Agente Gerador de Tarefas e Checagem Simples**: Crie na pasta agente_tarefas um agente que gera uma lista de tarefas a partir de uma entrada do usuário e marca tarefas como concluídas mediante comandos simples.[1]
+- **Agente Gerador de Tarefas e Checagem Simples**: 
+Quero um projeto para estudo. Crie na pasta agente_tarefas um agente que gera uma lista de tarefas a partir de uma entrada do usuário e marca tarefas como concluídas mediante comandos simples. O programa deve esperar resposta do usuário no terminal, deve ocorrer em 3 rodadas: 1 entrada para criar lista, indicar qual tarefa marcar e 3 adicionar tarefas.
+[1]
+
+Use langgraph, consulte a documentação do langgraph external_docs/langgraph_docs.md sobre praticas de uso do framework. Use memoria conforme exemplo no agente_memoria/main.py. Gere um único arquivo main.py para esse projeto, deve ser usado gemini-2.5-flash. A interação com o usuário deve ser feita via terminal. Não crie um loop de interação, mantenha apenas as 3 interações. Deve ser exibido no terminal a entrada do usuario e as respostas do agente.
 
 ### Observações Importantes
 
