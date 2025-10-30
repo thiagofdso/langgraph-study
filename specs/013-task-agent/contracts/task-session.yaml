@@ -1,0 +1,177 @@
+openapi: 3.1.0
+info:
+  title: Terminal Task Session Agent Contracts
+  version: 0.1.0
+  summary: Formal contract describing the three sequential interactions executed via terminal proxy.
+servers:
+  - url: https://terminal-session.local
+    description: Placeholder host; actual execution occurs via CLI prompts.
+paths:
+  /session/{thread_id}/tasks:
+    post:
+      summary: Round 1 – capture initial task list
+      description: Accepts one or more raw task descriptions and returns the ordered list that will drive the rest of the session.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifier aligning with LangGraph `configurable.thread_id`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tasks
+              properties:
+                tasks:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+                    minLength: 1
+                    description: Raw task description provided by the learner.
+      responses:
+        '200':
+          description: Ordered task list ready for round 2.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - tasks
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TaskItem'
+  /session/{thread_id}/tasks/{task_id}/complete:
+    post:
+      summary: Round 2 – mark a task as completed
+      description: Marks the specified task as completed and returns the refreshed snapshot.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Updated task roster including completion flag and summary message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskSessionState'
+        '400':
+          description: Invalid index or task already completed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /session/{thread_id}/tasks/new:
+    post:
+      summary: Round 3 – append new tasks and close session
+      description: Adds optional new tasks, resolves duplicates, and emits final summary for terminal display.
+      parameters:
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_tasks:
+                  type: array
+                  items:
+                    type: string
+                  description: Additional tasks supplied in round 3; may be empty when learner opts to finish.
+                duplicate_resolution:
+                  type: string
+                  enum: [accept, skip]
+                  description: Learner decision when duplicates detected.
+      responses:
+        '200':
+          description: Final session summary separating completed and pending tasks.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionSummary'
+components:
+  schemas:
+    TaskItem:
+      type: object
+      required: [id, description, status, source_round]
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, completed]
+        source_round:
+          type: string
+          enum: [round1, round3]
+    TaskSessionState:
+      type: object
+      required: [tasks, completed_ids]
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskItem'
+        completed_ids:
+          type: array
+          items:
+            type: integer
+        message:
+          type: string
+          description: Portuguese explanation displayed after completion.
+    SessionSummary:
+      type: object
+      required: [completed_tasks, pending_tasks, totals]
+      properties:
+        completed_tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskItem'
+        pending_tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskItem'
+        totals:
+          type: object
+          required: [completed, pending, overall]
+          properties:
+            completed:
+              type: integer
+            pending:
+              type: integer
+            overall:
+              type: integer
+        closing_message:
+          type: string
+          description: Final Portuguese prompt encouraging restart instructions.
+    ErrorResponse:
+      type: object
+      required: [error, details]
+      properties:
+        error:
+          type: string
+        details:
+          type: string

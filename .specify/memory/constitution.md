@@ -1,14 +1,14 @@
 <!--
 Sync Impact Report:
-Version change: 1.1.0 -> 1.2.0
-List of modified principles: XIV. Specification-Driven Development (added)
-Added sections: XIV. Specification-Driven Development
+Version change: 1.2.0 -> 1.3.0
+List of modified principles: XV. Project Catalog Updates (added)
+Added sections: XV. Project Catalog Updates
 Removed sections: None
-Templates requiring updates: 
-- .specify/templates/plan-template.md ⚠ pending
-- .specify/templates/spec-template.md ⚠ pending
-- .specify/templates/tasks-template.md ⚠ pending
-- .specify/templates/commands/*.md ⚠ pending
+Templates requiring updates:
+- .specify/templates/plan-template.md ✅ reviewed (no changes required)
+- .specify/templates/spec-template.md ✅ reviewed (no changes required)
+- .specify/templates/tasks-template.md ✅ updated
+- .specify/templates/commands/*.md ✅ reviewed (no changes required)
 Follow-up TODOs: None
 -->
 # Langgraph Agent Development Constitution
@@ -55,7 +55,11 @@ New projects MUST copy the `.env` file from the `agente_simples` folder to ensur
 `mcp` (Context7) SHOULD be used for documentation lookup, and `perplexity` for general internet research. `google_web_search` and `web_fetch` serve as fallback tools.
 
 ### XIV. Specification-Driven Development
+
 All features MUST be developed using a specification-driven approach, leveraging the `.specify` framework for clear requirements, planning, and task generation.
+
+### XV. Project Catalog Updates
+Upon completing implementation of any new project (e.g., `agente_*`, `multi_agentes_*`, or similar study artifacts), teams MUST record the feature in `PROJETOS.md`, documenting both its user-facing functionality and the technical approach used to satisfy the requirements. This ensures the catalog stays current for future learning and governance reviews.
 
 ## Development Guidelines
 
@@ -69,4 +73,4 @@ Significant changes require approval. The process for seeking approval will be d
 
 This Constitution supersedes all other practices. Amendments require documentation, approval, and a migration plan. All pull requests and code reviews MUST verify compliance with these principles. Complexity MUST be justified.
 
-**Version**: 1.2.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-10-28
+**Version**: 1.3.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-10-30
