@@ -61,3 +61,7 @@ Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes
 ## pdf_to_md
 - **Objetivo funcional**: converter o PDF fixo `openshift_container_platform-4.9-distributed_tracing-en-us.pdf` para um arquivo Markdown local.
 - **Abordagem técnica**: script independente que usa `docling.document_converter.DocumentConverter` para ler o PDF, exporta o conteúdo em Markdown e grava o resultado em `pdf_to_md/`, com verificações básicas de existência do arquivo.
+
+## agente_reflexao_basica
+- **Objetivo funcional**: entregar uma resposta refinada para a pergunta fixa “O que é importante para um programador aprender”, registrando cada crítica e rascunho gerados durante o processo.
+- **Abordagem técnica**: `StateGraph` com nós `generate` e `reflect`, contador de iterações no estado e checkpoint em memória; prompts dedicados instruem o Gemini (`gemini-2.5-flash`) a gerar rascunhos e críticas em JSON com pelo menos quatro prioridades de aprendizagem.

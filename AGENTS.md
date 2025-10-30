@@ -9,6 +9,8 @@ Auto-generated from all feature plans. Last updated: 2025-10-29
 - FAQ embedded directly in prompt text (no external storage); simple in-memory interaction log (012-faq-routing-agent)
 - Python 3.12.3 + langgraph, langchain-core, google-generativeai (`gemini-2.5-flash`), python-dotenv (via project standard), standard library I/O utilities (013-task-agent)
 - In-memory session state only (task list and completion markers) (013-task-agent)
+- Python 3.12.3 + LangGraph, langchain-core, google-generativeai (`gemini-2.5-flash`), python-dotenv (014-add-reflection-agent)
+- None (in-memory session state only) (014-add-reflection-agent)
 
 - Python 3.12.3 (repo virtualenv) + langgraph; langchain-core; google-generativeai; langchain-tavily (010-web-search-agent)
 
@@ -29,9 +31,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12.3 (repo virtualenv): Follow standard conventions
 
 ## Recent Changes
+- 014-add-reflection-agent: Added Python 3.12.3 + LangGraph, langchain-core, google-generativeai (`gemini-2.5-flash`), python-dotenv
 - 013-task-agent: Added Python 3.12.3 + langgraph, langchain-core, google-generativeai (`gemini-2.5-flash`), python-dotenv (via project standard), standard library I/O utilities
 - 012-faq-routing-agent: Added Python 3.12.3 (repo virtualenv) + langgraph, langchain-core, google-generativeai (Gemini), sqlite3 (stdlib not used here but available), textwrap/typing (stdlib)
-- 011-sqlite-sales-agent: Added Python 3.12.3 (repo virtualenv) + langgraph, langchain-core, sqlite3 (stdlib), tabulate/markdown handling TBD (likely use `textwrap` or manual formatting)
 
 
 <!-- MANUAL ADDITIONS START -->

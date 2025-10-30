@@ -1,35 +1,44 @@
-### Exemplos Intermediários para Aprender LangGraph
-
-- **Agente Gerador de Tarefas e Checagem Simples**: 
-Quero um projeto para estudo. Crie na pasta agente_tarefas um agente que gera uma lista de tarefas a partir de uma entrada do usuário e marca tarefas como concluídas mediante comandos simples. O programa deve esperar resposta do usuário no terminal, deve ocorrer em 3 rodadas: 1 entrada para criar lista, indicar qual tarefa marcar e 3 adicionar tarefas. O próximo requisito é o 013.
-[1]
-
-Use langgraph, consulte a documentação do langgraph external_docs/langgraph_docs.md sobre praticas de uso do framework. Use memoria conforme exemplo no agente_memoria/main.py. Gere um único arquivo main.py para esse projeto, deve ser usado gemini-2.5-flash. A interação com o usuário deve ser feita via terminal. Não adicione parametros. Não crie um loop de interação, mantenha apenas as 3 interações. Deve ser exibido no terminal a entrada do usuario e as respostas do agente.
-
-### Observações Importantes
-
-Esses exemplos utilizam padrões básicos de LangGraph: roteamento condicional simples, uso de ferramentas, fluxo sequencial, e módulos de memória leve, sem exigir lógica de reflexão, paralelismo avançado, ou roteamento dinâmico sofisticado. São ideais para praticar sem complexidade extra.[2][5][1][4]
-
-Você também pode combinar ou adaptar ideias dessas sugestões, experimentando pequenas variações conforme seus interesses e necessidades.
-
-[1](https://www.projectpro.io/article/langgraph-projects-and-examples/1124)
-[2](https://www.datacamp.com/tutorial/langgraph-agents)
-[3](https://langchain-ai.github.io/langgraph/tutorials/workflows/)
-[4](https://latenode.com/blog/langgraph-tutorial-complete-beginners-guide-to-getting-started)
-[5](https://veritasanalytica.ai/langgraph-ultimate-guide/)
-[6](https://pub.towardsai.net/agentic-design-patterns-with-langgraph-5fe7289187e6)
-
 ## Casos de Uso Avançados para Estudar LangGraph
 
-Com base nos projetos que você já implementou, aqui estão outros casos de uso progressivamente mais avançados para aprofundar seus conhecimentos em LangGraph:
+**Agente Auto-Corretivo com Execução de Código**: Crie na pasta agente_codigo um agente que gera código, tenta executá-lo, e se houver erros, usa o feedback da execução para corrigir o código automaticamente em um loop iterativo.[2][3]. A tarefa para teste deve ser: 
+```
+Desenvolva um projeto didático em Python para estudar as principais estruturas de dados, incluindo listas, tuplas, conjuntos, dicionários, pilhas, filas e lista encadeada. O projeto deve permitir que o estudante aprenda, implemente e teste cada estrutura de dados, explorando inserção, remoção e busca de elementos, além de aplicações práticas.
 
-### **Padrões de Reflexão e Auto-Correção**
+Requisitos:
 
-**Agente com Reflexão Básica**: Crie na pasta agente_reflexao_basica um agente que gera uma resposta, depois usa um nó separado de "reflexão" para criticar e melhorar a resposta inicial. O ciclo se repete por um número fixo de iterações.[1][2]
+Estruture o projeto em módulos separados para cada tipo de estrutura de dados.
 
-**Agente Auto-Corretivo com Execução de Código**: Crie na pasta agente_codigo um agente que gera código, tenta executá-lo, e se houver erros, usa o feedback da execução para corrigir o código automaticamente em um loop iterativo.[2][3]
+Cada módulo deve conter:
 
-**Reflexion Pattern**: Implemente na pasta agente_reflexao_web o padrão Reflexion completo onde o agente não só reflete, mas fundamenta suas críticas em dados externos (como resultados de ferramentas de busca) e gera citações explícitas.[1]
+Implementação da estrutura (usando classes ou funções, quando aplicável).
+
+Exemplos de uso (insira, remova, busque elementos e exiba o conteúdo).
+
+Comentários explicativos no código, detalhando cada parte.
+
+Exercícios práticos para estimular o estudante a modificar e expandir a implementação.
+
+Inclua um README orientando sobre a execução dos exemplos e sugestões de desafios extras.
+
+Formato de saída desejado:
+
+Código Python organizado em pastas e arquivos.
+
+Comentários didáticos explicando solução e lógica.
+
+Um documento de instruções (README) com roteiro de estudos, tópicos abordados e dicas adicionais de aprofundamento.
+
+Público-alvo:
+Estudantes, iniciantes em programação ou programadores que desejam revisar fundamentos de estrutura de dados em Python.
+```
+
+Use langgraph, consulte a documentação do langgraph external_docs/langgraph_docs.md sobre praticas de uso do framework. Não adicione parametros. Não crie um loop de interação, não crie teste unitários ou testes de integração. Teste a aplicação executando o main.py, não altere o .env copiado. Consulte a url https://langchain-ai.github.io/langgraph/tutorials/code_assistant/langgraph_code_assistant/#graph. Pesquise sobre como fazer um agente langgraph executar escrever e código python.
+
+**Reflexion Pattern**: Implemente na pasta agente_reflexao_web o padrão Reflexion completo onde o agente não só reflete, mas fundamenta suas críticas em dados externos (como resultados de ferramentas de busca) e gera citações explícitas. O agente deve responder a pergunta "como funciona o google adk?"
+
+[1]
+
+Use langgraph, consulte a documentação do langgraph external_docs/langgraph_docs.md sobre praticas de uso do framework. Se baseie no projeto agente_web para consultar a internet. Não adicione parametros. Não crie um loop de interação, não crie teste unitários ou testes de integração. Teste a aplicação executando o main.py, não altere o .env copiado. Consulte a url https://blog.langchain.com/reflection-agents/.
 
 ### **Padrões de Roteamento e Controle de Fluxo**
 
@@ -395,6 +404,9 @@ Combine retry middleware, fallback, circuit breaker, e monitoring para alta disp
 
 **5. Plataforma Multi-Tenant:**
 Implemente autenticação, autorização, rate limiting por tenant, e isolamento de dados.
+
+
+https://blog.langchain.com/tag/case-studies/
 
 Esses middlewares oferecem controle granular sobre cada etapa do loop de execução dos agentes, permitindo que você construa sistemas robustos, seguros e eficientes.[1][5][2][4][3]
 
