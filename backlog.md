@@ -7,12 +7,11 @@
 Use langgraph, consulte a documentação do langgraph external_docs/langgraph_docs.md sobre praticas de uso do framework. Não adicione parametros. Não crie um loop de interação, não crie teste unitários ou testes de integração. Teste a aplicação executando o main.py, não altere o .env copiado. Consulte o projeto na pasta agente_perguntas/main.py para verificar a forma de inserir a aprovação humana, use a mesma forma para aprovar uso de uma tool. Adicione a ferramenta do projeto agente_web/main.py. Consulte a documentação https://langchain-ai.github.io/langgraph/concepts/human_in_the_loop/ para detalhes do funcionamento do human-in-the-loop. Pesquise na internet como retornar ao loop em caso de falha na validação, salve sua consulta na pasta research. O workflow deve conter na ordem o nó de gerar resposta, o nó de aprovacao humana que deve ser condicional, no caso de aprovado deve seguir para o nó de busca na internet e depois o nó de gerar resposta, senão for aprovado deve seguir diretamente para o nó de gerar resposta, após gerar a resposta deve encerrado, isso pode ser feito fazendo nó de gerar resposta ser condicional, no caso de ser a primeira execucao ele direciona para a aprovacao humana, na segunda direciona para END.
 
 
-
-**Roteamento com Fallback Estratégico**: Implemente um sistema que tenta diferentes estratégias sequencialmente se a primeira falhar, com lógica de fallback inteligente.[4]
+[4]
 
 ### **Padrões de Execução Paralela**
 
-**Execução Paralela de Ferramentas com Gestão de Erros**: Crie agente_error_handling um agente que executa múltiplas ferramentas assincronamente em paralelo usando `asyncio.gather`, com tratamento robusto de erros e métricas de performance.[10]
+**Execução Paralela de Ferramentas com Gestão de Erros**: Crie na pasta agente_error_handling um agente que executa múltiplas ferramentas assincronamente em paralelo usando `asyncio.gather`, com tratamento robusto de erros e métricas de performance.[10]
 
 ### **Padrões de Streaming e Feedback em Tempo Real**
 
