@@ -73,3 +73,7 @@ Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes
 ## agente_reflexao_web
 - **Objetivo funcional**: responder "Como funciona o Google Agent Development Kit?" entregando um texto final em português apoiado por evidências coletadas na web.
 - **Abordagem técnica**: combina três nós (`gerar_resposta`, `decidir_fluxo`, `refletir_com_evidencias`) em um `StateGraph`. O nó de reflexão consulta o Tavily para buscar fontes, enquanto o Gemini produz rascunhos e críticas sequenciais. Cada iteração reaproveita o histórico em memória (`InMemorySaver`) e, ao final, as citações são substituídas pelos próprios URLs relevantes.
+
+## agente_aprovacao
+- **Objetivo funcional**: controlar a execução de ferramentas externas exigindo aprovação humana, validando a entrada do usuário e garantindo resposta mesmo quando a pesquisa for negada.
+- **Abordagem técnica**: implementa todo o fluxo em `agente_aprovacao/main.py` com um `StateGraph` que valida a solicitação, usa `interrupt` para coletar correções e decisões humanas, consulta Tavily somente após autorização via tool dedicada e gera a resposta final com Gemini (`gemini-2.5-flash`). Expressões matemáticas simples são resolvidas localmente sem acionar ferramentas externas, e a execução encerra após a segunda passagem pelo nó de geração.

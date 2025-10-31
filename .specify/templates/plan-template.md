@@ -7,7 +7,7 @@
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+[Extract from feature spec: primary requirement + technical approach from research. Consulte `PROJETOS.md` para localizar projetos similares e registre aqui os padrões reutilizados.]
 
 ## Technical Context
 

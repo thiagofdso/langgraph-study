@@ -1,14 +1,14 @@
 <!--
 Sync Impact Report:
-Version change: 1.3.0 -> 1.4.0
-List of modified principles: XVI. Clarifying Requirements During /speckit.specify (added), XVII. Clarifying Technical Scope During /speckit.plan (added), XVIII. Clarifying Task Details During /speckit.tasks (added), XIX. Checkpoints During /speckit.implement (added)
-Added sections: XVI. Clarifying Requirements During /speckit.specify, XVII. Clarifying Technical Scope During /speckit.plan, XVIII. Clarifying Task Details During /speckit.tasks, XIX. Checkpoints During /speckit.implement
+Version change: 1.4.0 -> 1.5.0
+List of modified principles: XX. Referencing Prior Projects During /speckit.plan (added)
+Added sections: XX. Referencing Prior Projects During /speckit.plan
 Removed sections: None
 Templates requiring updates:
-- .specify/templates/plan-template.md ✅ reviewed (guidance consistent)
-- .specify/templates/spec-template.md ✅ reviewed (guidance consistent)
-- .specify/templates/tasks-template.md ✅ reviewed (guidance consistent)
-- Command templates (n/a) — no files present
+- .specify/templates/plan-template.md ✅ updated (added instrução para revisar PROJETOS.md)
+- .specify/templates/spec-template.md ✅ no changes required
+- .specify/templates/tasks-template.md ✅ no changes required
+- Command templates (n/a) — none present
 Follow-up TODOs: None
 -->
 # Langgraph Agent Development Constitution
@@ -72,6 +72,9 @@ When executing `/speckit.tasks`, developers MUST request additional details from
 ### XIX. Checkpoints During `/speckit.implement`
 While using `/speckit.implement`, developers MUST provide checkpoints after completing key requirements—especially complex activities—summarizing the work done, proposing next steps, and confirming direction with the user. If tests fail repeatedly, developers MUST pause, explain the situation, suggest remediation options, and ask how the user wishes to proceed before continuing.
 
+### XX. Referencing Prior Projects During `/speckit.plan`
+Before finalizing any `/speckit.plan`, developers MUST review `PROJETOS.md` to identify projects with similar requirements, examine the referenced code, and incorporate relevant lessons or patterns into the plan. This ensures new work leverages existing solutions, preserves consistency, and avoids duplicating documented effort.
+
 ## Development Guidelines
 
 All development activities should adhere to the principles outlined above, ensuring consistency and quality across all projects.
@@ -84,4 +87,4 @@ Significant changes require approval. The process for seeking approval will be d
 
 This Constitution supersedes all other practices. Amendments require documentation, approval, and a migration plan. All pull requests and code reviews MUST verify compliance with these principles. Complexity MUST be justified.
 
-**Version**: 1.4.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-10-31
+**Version**: 1.5.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-10-31
