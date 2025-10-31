@@ -1,0 +1,65 @@
+openapi: 3.1.0
+info:
+  title: Auto Code Agent Runner
+  version: 0.1.0
+  description: Trigger the iterative code generation agent for a configured task.
+paths:
+  /agents/code/run:
+    post:
+      summary: Execute the code generation workflow for a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - task_id
+              properties:
+                task_id:
+                  type: string
+                  description: Identifier of the task (e.g., python_estrutura)
+      responses:
+        "200":
+          description: Execution completed
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - task_id
+                  - final_status
+                  - iterations
+                properties:
+                  task_id:
+                    type: string
+                  final_status:
+                    type: string
+                    enum: [success, limit_reached, error]
+                  iterations:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - iteration
+                        - status
+                        - return_code
+                        - analysis
+                      properties:
+                        iteration:
+                          type: integer
+                        status:
+                          type: string
+                          enum: [success, retry, fatal]
+                        return_code:
+                          type: integer
+                        analysis:
+                          type: string
+                        stdout:
+                          type: string
+                        stderr:
+                          type: string
+        "400":
+          description: Invalid task identifier or configuration error
+        "500":
+          description: Agent failed unexpectedly

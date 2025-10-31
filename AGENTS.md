@@ -11,6 +11,7 @@ Auto-generated from all feature plans. Last updated: 2025-10-29
 - In-memory session state only (task list and completion markers) (013-task-agent)
 - Python 3.12.3 + LangGraph, langchain-core, google-generativeai (`gemini-2.5-flash`), python-dotenv (014-add-reflection-agent)
 - None (in-memory session state only) (014-add-reflection-agent)
+- Sistema de arquivos local (artefatos de código e logs) (015-auto-code-agent)
 
 - Python 3.12.3 (repo virtualenv) + langgraph; langchain-core; google-generativeai; langchain-tavily (010-web-search-agent)
 
@@ -31,9 +32,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12.3 (repo virtualenv): Follow standard conventions
 
 ## Recent Changes
+- 015-auto-code-agent: Added Python 3.12.3 + LangGraph, langchain-core, google-generativeai (`gemini-2.5-flash`), python-dotenv
 - 014-add-reflection-agent: Added Python 3.12.3 + LangGraph, langchain-core, google-generativeai (`gemini-2.5-flash`), python-dotenv
 - 013-task-agent: Added Python 3.12.3 + langgraph, langchain-core, google-generativeai (`gemini-2.5-flash`), python-dotenv (via project standard), standard library I/O utilities
-- 012-faq-routing-agent: Added Python 3.12.3 (repo virtualenv) + langgraph, langchain-core, google-generativeai (Gemini), sqlite3 (stdlib not used here but available), textwrap/typing (stdlib)
 
 
 <!-- MANUAL ADDITIONS START -->

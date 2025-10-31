@@ -1,39 +1,5 @@
 ## Casos de Uso Avançados para Estudar LangGraph
 
-**Agente Auto-Corretivo com Execução de Código**: Crie na pasta agente_codigo um agente que gera código, tenta executá-lo, e se houver erros, usa o feedback da execução para corrigir o código automaticamente em um loop iterativo.[2][3]. A tarefa para teste deve ser: 
-```
-Desenvolva um projeto didático em Python para estudar as principais estruturas de dados, incluindo listas, tuplas, conjuntos, dicionários, pilhas, filas e lista encadeada. O projeto deve permitir que o estudante aprenda, implemente e teste cada estrutura de dados, explorando inserção, remoção e busca de elementos, além de aplicações práticas.
-
-Requisitos:
-
-Estruture o projeto em módulos separados para cada tipo de estrutura de dados.
-
-Cada módulo deve conter:
-
-Implementação da estrutura (usando classes ou funções, quando aplicável).
-
-Exemplos de uso (insira, remova, busque elementos e exiba o conteúdo).
-
-Comentários explicativos no código, detalhando cada parte.
-
-Exercícios práticos para estimular o estudante a modificar e expandir a implementação.
-
-Inclua um README orientando sobre a execução dos exemplos e sugestões de desafios extras.
-
-Formato de saída desejado:
-
-Código Python organizado em pastas e arquivos.
-
-Comentários didáticos explicando solução e lógica.
-
-Um documento de instruções (README) com roteiro de estudos, tópicos abordados e dicas adicionais de aprofundamento.
-
-Público-alvo:
-Estudantes, iniciantes em programação ou programadores que desejam revisar fundamentos de estrutura de dados em Python.
-```
-
-Use langgraph, consulte a documentação do langgraph external_docs/langgraph_docs.md sobre praticas de uso do framework. Não adicione parametros. Não crie um loop de interação, não crie teste unitários ou testes de integração. Teste a aplicação executando o main.py, não altere o .env copiado. Consulte a url https://langchain-ai.github.io/langgraph/tutorials/code_assistant/langgraph_code_assistant/#graph. Pesquise sobre como fazer um agente langgraph executar escrever e código python.
-
 **Reflexion Pattern**: Implemente na pasta agente_reflexao_web o padrão Reflexion completo onde o agente não só reflete, mas fundamenta suas críticas em dados externos (como resultados de ferramentas de busca) e gera citações explícitas. O agente deve responder a pergunta "como funciona o google adk?"
 
 [1]
@@ -42,7 +8,10 @@ Use langgraph, consulte a documentação do langgraph external_docs/langgraph_do
 
 ### **Padrões de Roteamento e Controle de Fluxo**
 
-**Human-in-the-Loop com Validação**: Crie um workflow onde o agente pausa para aprovação humana antes de ações críticas, valida a entrada do usuário, e pode retornar ao loop se a validação falhar.[6][7]
+**Human-in-the-Loop com Validação**: Crie na pasta agente_aprovacao um workflow onde o agente pausa para aprovação humana antes de executar ferramentas, valida a entrada do usuário, e pode retornar ao loop se a validação falhar.[6][7]
+
+Use langgraph, consulte a documentação do langgraph external_docs/langgraph_docs.md sobre praticas de uso do framework. Não adicione parametros. Não crie um loop de interação, não crie teste unitários ou testes de integração. Teste a aplicação executando o main.py, não altere o .env copiado. Consulte o projeto na pasta agente_perguntas/main.py para verificar a forma de inserir a aprovação humana, use a mesma forma para aprovar uso de uma tool. Adicione a ferramenta do projeto agente_tool/main.py. Consulte a documentação https://langchain-ai.github.io/langgraph/concepts/human_in_the_loop/ para detalhes do funcionamento do human-in-the-loop. Pesquise na internet como retornar ao loop em caso de falha na validação, salve sua consulta na pasta research.
+
 
 **Roteamento com Fallback Estratégico**: Implemente um sistema que tenta diferentes estratégias sequencialmente se a primeira falhar, com lógica de fallback inteligente.[4]
 

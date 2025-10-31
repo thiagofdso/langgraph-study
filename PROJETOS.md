@@ -65,3 +65,7 @@ Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes
 ## agente_reflexao_basica
 - **Objetivo funcional**: entregar uma resposta refinada para a pergunta fixa “O que é importante para um programador aprender”, registrando cada crítica e rascunho gerados durante o processo.
 - **Abordagem técnica**: `StateGraph` com nós `generate` e `reflect`, contador de iterações no estado e checkpoint em memória; prompts dedicados instruem o Gemini (`gemini-2.5-flash`) a gerar rascunhos e críticas em JSON com pelo menos quatro prioridades de aprendizagem.
+
+## agente_codigo
+- **Objetivo funcional**: gerar um script didático sobre estruturas de dados, executá-lo em memória para validar o resultado e iterar até obter sucesso ou atingir cinco tentativas.
+- **Abordagem técnica**: o agente monta um `StateGraph` com nós de geração, execução, decisão e reflexão; usa `gemini-2.5-flash` apenas nos nós criativos, executa o código com `exec` capturando stdout/stderr e mantém todo o processo em memória, imprimindo o código final no console.
