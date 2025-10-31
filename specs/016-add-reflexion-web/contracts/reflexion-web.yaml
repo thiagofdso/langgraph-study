@@ -1,0 +1,80 @@
+openapi: 3.1.0
+info:
+  title: Reflexion Web Evidence Agent
+  version: "0.1.0"
+  description: >
+    Execução única do agente de reflexão com busca externa e citações.
+    A pergunta é fixa (“Como funciona o Google Agent Development Kit?”) e
+    nenhuma parametrização adicional é aceita, alinhando-se ao requisito
+    de não expor flags ou inputs extras.
+paths:
+  /agents/reflexion-web/run:
+    post:
+      summary: Executa o fluxo completo do agente
+      description: >
+        Dispara a busca por evidências, gera rascunho, realiza até três reflexões
+        fundamentadas e retorna a resposta final com referências numeradas.
+        Não aceita corpo de requisição nem parâmetros.
+      operationId: runReflexionAgent
+      requestBody:
+        required: false
+        content: {}
+      responses:
+        "200":
+          description: Execução concluída
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  question:
+                    type: string
+                    example: Como funciona o Google Agent Development Kit?
+                  iterations:
+                    type: array
+                    description: Histórico dos ciclos de rascunho e reflexão.
+                    items:
+                      type: object
+                      properties:
+                        draft:
+                          type: string
+                        reflection:
+                          type: string
+                        usedEvidenceIds:
+                          type: array
+                          items:
+                            type: string
+                  finalAnswer:
+                    type: string
+                    description: Resposta final em português com citações numeradas.
+                  citations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                          example: "[1]"
+                        title:
+                          type: string
+                        url:
+                          type: string
+                        retrievedAt:
+                          type: string
+                          format: date-time
+                  warnings:
+                    type: array
+                    items:
+                      type: string
+        "503":
+          description: Falha ao consultar fontes externas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Serviço de busca indisponível
+                  details:
+                    type: string

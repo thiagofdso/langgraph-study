@@ -1,10 +1,10 @@
 ## Casos de Uso Avançados para Estudar LangGraph
 
-**Reflexion Pattern**: Implemente na pasta agente_reflexao_web o padrão Reflexion completo onde o agente não só reflete, mas fundamenta suas críticas em dados externos (como resultados de ferramentas de busca) e gera citações explícitas. O agente deve responder a pergunta "como funciona o google adk?"
+**Reflexion Pattern**: Implemente na pasta agente_reflexao_web o padrão Reflexion completo onde o agente não só reflete, mas fundamenta suas críticas em dados externos (como resultados de ferramentas de busca) e gera citações explícitas. O agente deve responder a pergunta "Como funciona o Google Agent Development Kit?" O próximo requisito é o de número 016.
 
 [1]
 
-Use langgraph, consulte a documentação do langgraph external_docs/langgraph_docs.md sobre praticas de uso do framework. Se baseie no projeto agente_web para consultar a internet. Não adicione parametros. Não crie um loop de interação, não crie teste unitários ou testes de integração. Teste a aplicação executando o main.py, não altere o .env copiado. Consulte a url https://blog.langchain.com/reflection-agents/.
+Use langgraph, consulte a documentação do langgraph external_docs/langgraph_docs.md sobre praticas de uso do framework. Se baseie no projeto agente_web para consultar a internet, no projeto agente_reflexao_basica para realizar o processo de reflexão, use um limite de 3 iterações de reflexão e no projeto agente_memoria para usar memoria no nó de geração da resposta. Adicione as referências usadas na reflexão na resposta para o agente que elaborou a resposta inicial. Não adicione parametros. Não crie um loop de interação, não crie teste unitários ou testes de integração. Teste a aplicação executando o main.py, copie o .env de agente_web e não altere o .env copiado.
 
 ### **Padrões de Roteamento e Controle de Fluxo**
 

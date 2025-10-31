@@ -1,14 +1,14 @@
 <!--
 Sync Impact Report:
-Version change: 1.2.0 -> 1.3.0
-List of modified principles: XV. Project Catalog Updates (added)
-Added sections: XV. Project Catalog Updates
+Version change: 1.3.0 -> 1.4.0
+List of modified principles: XVI. Clarifying Requirements During /speckit.specify (added), XVII. Clarifying Technical Scope During /speckit.plan (added), XVIII. Clarifying Task Details During /speckit.tasks (added), XIX. Checkpoints During /speckit.implement (added)
+Added sections: XVI. Clarifying Requirements During /speckit.specify, XVII. Clarifying Technical Scope During /speckit.plan, XVIII. Clarifying Task Details During /speckit.tasks, XIX. Checkpoints During /speckit.implement
 Removed sections: None
 Templates requiring updates:
-- .specify/templates/plan-template.md ✅ reviewed (no changes required)
-- .specify/templates/spec-template.md ✅ reviewed (no changes required)
-- .specify/templates/tasks-template.md ✅ updated
-- .specify/templates/commands/*.md ✅ reviewed (no changes required)
+- .specify/templates/plan-template.md ✅ reviewed (guidance consistent)
+- .specify/templates/spec-template.md ✅ reviewed (guidance consistent)
+- .specify/templates/tasks-template.md ✅ reviewed (guidance consistent)
+- Command templates (n/a) — no files present
 Follow-up TODOs: None
 -->
 # Langgraph Agent Development Constitution
@@ -55,11 +55,22 @@ New projects MUST copy the `.env` file from the `agente_simples` folder to ensur
 `mcp` (Context7) SHOULD be used for documentation lookup, and `perplexity` for general internet research. `google_web_search` and `web_fetch` serve as fallback tools.
 
 ### XIV. Specification-Driven Development
-
 All features MUST be developed using a specification-driven approach, leveraging the `.specify` framework for clear requirements, planning, and task generation.
 
 ### XV. Project Catalog Updates
 Upon completing implementation of any new project (e.g., `agente_*`, `multi_agentes_*`, or similar study artifacts), teams MUST record the feature in `PROJETOS.md`, documenting both its user-facing functionality and the technical approach used to satisfy the requirements. This ensures the catalog stays current for future learning and governance reviews.
+
+### XVI. Clarifying Requirements During `/speckit.specify`
+While running `/speckit.specify`, developers MUST avoid assuming user goals or requirements. Whenever intent, scope, or success measures are unclear, the developer MUST ask explicit clarifying questions before proceeding, ensuring the generated specification reflects the user's expectations.
+
+### XVII. Clarifying Technical Scope During `/speckit.plan`
+During `/speckit.plan`, developers MUST resolve ambiguities in architecture, tooling, or delivery scope before finalizing the implementation plan. Missing technical definitions require explicit questions to the user, and the resulting plan MUST document a complete, unambiguous scope.
+
+### XVIII. Clarifying Task Details During `/speckit.tasks`
+When executing `/speckit.tasks`, developers MUST request additional details from the user whenever task breakdown decisions depend on unspecified requirements. Task lists MUST capture the clarified scope so execution can proceed without hidden assumptions.
+
+### XIX. Checkpoints During `/speckit.implement`
+While using `/speckit.implement`, developers MUST provide checkpoints after completing key requirements—especially complex activities—summarizing the work done, proposing next steps, and confirming direction with the user. If tests fail repeatedly, developers MUST pause, explain the situation, suggest remediation options, and ask how the user wishes to proceed before continuing.
 
 ## Development Guidelines
 
@@ -73,4 +84,4 @@ Significant changes require approval. The process for seeking approval will be d
 
 This Constitution supersedes all other practices. Amendments require documentation, approval, and a migration plan. All pull requests and code reviews MUST verify compliance with these principles. Complexity MUST be justified.
 
-**Version**: 1.3.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-10-30
+**Version**: 1.4.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-10-31

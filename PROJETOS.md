@@ -69,3 +69,7 @@ Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes
 ## agente_codigo
 - **Objetivo funcional**: gerar um script didático sobre estruturas de dados, executá-lo em memória para validar o resultado e iterar até obter sucesso ou atingir cinco tentativas.
 - **Abordagem técnica**: o agente monta um `StateGraph` com nós de geração, execução, decisão e reflexão; usa `gemini-2.5-flash` apenas nos nós criativos, executa o código com `exec` capturando stdout/stderr e mantém todo o processo em memória, imprimindo o código final no console.
+
+## agente_reflexao_web
+- **Objetivo funcional**: responder "Como funciona o Google Agent Development Kit?" entregando um texto final em português apoiado por evidências coletadas na web.
+- **Abordagem técnica**: combina três nós (`gerar_resposta`, `decidir_fluxo`, `refletir_com_evidencias`) em um `StateGraph`. O nó de reflexão consulta o Tavily para buscar fontes, enquanto o Gemini produz rascunhos e críticas sequenciais. Cada iteração reaproveita o histórico em memória (`InMemorySaver`) e, ao final, as citações são substituídas pelos próprios URLs relevantes.
