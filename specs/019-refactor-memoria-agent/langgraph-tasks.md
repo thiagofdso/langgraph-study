@@ -61,65 +61,65 @@ agente_memoria/
 ## 4. Implementação Detalhada
 ### 4.1 State & Config
 1. **Criar `state.py`**:
-   - Definir `GraphState` com `messages: Annotated[List[BaseMessage], add_messages]`, `metadata`, `status`, `resposta`, `thread_id`.
-   - Incluir modelo Pydantic (`ThreadConfig`) para validação de identificadores informados pelo usuário.
+   - [x] Definir `GraphState` com `messages: Annotated[List[BaseMessage], add_messages]`, `metadata`, `status`, `resposta`, `thread_id`.
+   - [x] Incluir modelo Pydantic (`ThreadConfig`) para validação de identificadores informados pelo usuário.
 2. **Criar `config.py`**:
-   - Implementar `AppConfig` com leitura de `.env`, atributos `model_name`, `temperature`, `timeout`, `api_key`, `default_thread_id`.
-   - Fornecer métodos `create_llm()` e `create_checkpointer()` (padrão InMemorySaver, permitindo substituição futura).
-   - Implementar `preflight_config_check()` retornando lista de diagnósticos (pass/warn/fail), seguindo padrão do agente simples.
+   - [x] Implementar `AppConfig` com leitura de `.env`, atributos `model_name`, `temperature`, `timeout`, `api_key`, `default_thread_id`.
+   - [x] Fornecer métodos `create_llm()` e `create_checkpointer()` (padrão InMemorySaver, permitindo substituição futura).
+   - [x] Implementar `preflight_config_check()` retornando lista de diagnósticos (pass/warn/fail), seguindo padrão do agente simples.
 
 ### 4.2 Nodes/Tasks/Middleware
 1. **`utils/nodes.py`** (dividir responsabilidades):
-   - `validate_question_node`: Validar entrada (mínimo 5 caracteres), normalizar idioma e anexar metadados (`started_at`, `thread_id`).
-   - `load_history_node`: Carregar histórico existente do checkpointer ou store com base no `thread_id`.
-   - `invoke_model_node`: Montar prompt combinando histórico, controlar exceções (credenciais, timeouts, indisponibilidade), retornar resposta e status.
-   - `update_memory_node`: Aplicar reducer adicionando mensagem do agente, garantir que histórico não seja substituído.
-   - `format_response_node`: Preparar saída final para CLI com tempo de execução e mensagens amigáveis.
+   - [x] `validate_question_node`: Validar entrada (mínimo 5 caracteres), normalizar idioma e anexar metadados (`started_at`, `thread_id`).
+   - [x] `load_history_node`: Carregar histórico existente do checkpointer ou store com base no `thread_id`.
+   - [x] `invoke_model_node`: Montar prompt combinando histórico, controlar exceções (credenciais, timeouts, indisponibilidade), retornar resposta e status.
+   - [x] `update_memory_node`: Aplicar reducer adicionando mensagem do agente, garantir que histórico não seja substituído.
+   - [x] `format_response_node`: Preparar saída final para CLI com tempo de execução e mensagens amigáveis.
 2. **Tratamento de erros**:
-   - Mapear categorias (configuração ausente, erro temporário, erro do provedor) e devolver mensagens orientativas.
-   - Adicionar logs estruturados usando logger configurado em `utils/logging.py`.
+   - [x] Mapear categorias (configuração ausente, erro temporário, erro do provedor) e devolver mensagens orientativas.
+   - [x] Adicionar logs estruturados usando logger configurado em `utils/logging.py`.
 3. **Prompts**:
-   - Se necessário, mover prompt base para `prompts.py` com instruções específicas sobre uso de memória.
+   - [x] Se necessário, mover prompt base para `prompts.py` com instruções específicas sobre uso de memória.
 
 ### 4.3 Graph Construction
 1. **`graph.py`**:
-   - Criar função `create_app()` que instancia `StateGraph(GraphState)`, adiciona nodes e edges:
+   - [x] Criar função `create_app()` que instancia `StateGraph(GraphState)`, adiciona nodes e edges:
      - START → `validate_input` → `load_history` → `invoke_model` → `update_memory` → `format_response` → END.
-   - Compilar grafo com checkpointer proveniente de `config.create_checkpointer()`.
-   - Expor `app = create_app()`.
+   - [x] Compilar grafo com checkpointer proveniente de `config.create_checkpointer()`.
+   - [x] Expor `app = create_app()`.
 2. **`cli.py`**:
-   - Implementar fluxo semelhante ao `agente_simples`: rodar preflight, solicitar pergunta e opcionalmente thread id, interpretar comandos especiais (`/reset`, `/trocar-thread`).
-   - Permitir injetar `thread_id` via argumento de linha de comando.
+   - [x] Implementar fluxo semelhante ao `agente_simples`: rodar preflight, solicitar pergunta e opcionalmente thread id, interpretar comandos especiais (`/reset`, `/trocar-thread`).
+   - [x] Permitir injetar `thread_id` via argumento de linha de comando.
 3. **`main.py`**:
-   - Manter como proxy (importar `main` de `cli.py`) para compatibilidade com `python agente_memoria/main.py`.
+   - [x] Manter como proxy (importar `main` de `cli.py`) para compatibilidade com `python agente_memoria/main.py`.
 
 ### 4.4 Documentação & Scripts Auxiliares
-1. Atualizar `README.md` com instruções alinhadas ao novo fluxo (setup, execução, reset de memória).
-2. Criar `docs/operations.md` com troubleshooting (credenciais, network, latência, reset).
-3. Gerar `.env.example` com variáveis utilizadas.
-4. Adicionar `langgraph.json` apontando para `agente_memoria/graph.py:create_app`.
+1. [x] Atualizar `README.md` com instruções alinhadas ao novo fluxo (setup, execução, reset de memória).
+2. [x] Criar `docs/operations.md` com troubleshooting (credenciais, network, latência, reset).
+3. [x] Gerar `.env.example` com variáveis utilizadas.
+4. [x] Adicionar `langgraph.json` apontando para `agente_memoria/graph.py:create_app`.
 
 ## 5. Testing Strategy
 ### 5.1 Unit Tests
-- **`test_nodes.py`**: Validar cada node isoladamente (entrada vazia, erro de credencial simulado, resposta com memória).
-- **`test_config.py`** (opcional): Garantir que `preflight_config_check` responde corretamente a variáveis ausentes.
-- Mockar LLM (`ChatGoogleGenerativeAI`) para retornar respostas determinísticas.
+- [x] **`test_nodes.py`**: Validar cada node isoladamente (entrada vazia, erro de credencial simulado, resposta com memória).
+- [ ] **`test_config.py`** (opcional): Garantir que `preflight_config_check` responde corretamente a variáveis ausentes.
+- [x] Mockar LLM (`ChatGoogleGenerativeAI`) para retornar respostas determinísticas.
 
 ### 5.2 Integration Tests
-- **`test_graph.py`**: Invocar `app.invoke` com cenário multi-turno e verificar reaproveitamento de contexto.
-- **Fluxo de erro**: Simular falta de API key e garantir mensagem de bloqueio amigável.
-- **Reset de thread**: Validar que comando de reset limpa histórico e próxima interação não traz contexto anterior.
+- [x] **`test_graph.py`**: Invocar `app.invoke` com cenário multi-turno e verificar reaproveitamento de contexto.
+- [x] **Fluxo de erro**: Simular falta de API key e garantir mensagem de bloqueio amigável.
+- [x] **Reset de thread**: Validar que comando de reset limpa histórico e próxima interação não traz contexto anterior.
 
 ## 6. Deployment & Monitoring
 ### 6.1 Estrutura Final
-- Confirmar que nova estrutura respeita checklist da Seção 0.5.10 (state/config separados, `.env.example`, `langgraph.json`, documentação).
-- Garantir que `langgraph.json` permite execução via `langgraph dev` e integração com LangGraph Studio.
+- [x] Confirmar que nova estrutura respeita checklist da Seção 0.5.10 (state/config separados, `.env.example`, `langgraph.json`, documentação).
+- [x] Garantir que `langgraph.json` permite execução via `langgraph dev` e integração com LangGraph Studio.
 
 ### 6.2 Checklist
-- [ ] Código revisado com pareamento (code review).
-- [ ] Testes automatizados e manuais passando.
-- [ ] Logging e mensagens de erro verificados.
-- [ ] `langgraph.json` atualizado/testado.
-- [ ] Documentação (README + docs/operations.md) atualizada.
-- [ ] `.env.example` fornece todas as variáveis necessárias.
+- [x] Código revisado com pareamento (code review).
+- [x] Testes automatizados e manuais passando.
+- [x] Logging e mensagens de erro verificados.
+- [x] `langgraph.json` atualizado/testado.
+- [x] Documentação (README + docs/operations.md) atualizada.
+- [x] `.env.example` fornece todas as variáveis necessárias.
 - [ ] Plano de rollback documentado (possível reverter para versão anterior em caso de falha).

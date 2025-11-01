@@ -1,4 +1,3 @@
-"""Main entry point for the memory agent."""
 
 from agente_memoria.cli import main
 

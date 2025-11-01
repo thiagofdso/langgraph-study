@@ -7,8 +7,8 @@ Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes
 - **Abordagem técnica**: StateGraph sequencial (`validate_input` → `invoke_model` → `format_response`) organizado em módulos (`state.py`, `config.py`, `utils/`, `graph.py`, `cli.py`). O fluxo executa pré-checagens de configuração, trata falhas do provedor com mensagens controladas e registra logs estruturados em arquivo através de `utils.logging`. Testes unitários e de integração cobrem nodes, grafo e CLI.
 
 ## agente_memoria
-- **Objetivo funcional**: demonstrar uma conversa curta onde o agente lembra do que foi dito anteriormente para resolver instruções encadeadas.
-- **Abordagem técnica**: usa um `StateGraph` que acumula mensagens via `add_messages` e persiste o histórico com `InMemorySaver`, permitindo que o Gemini responda levando em conta perguntas e respostas anteriores.
+- **Objetivo funcional**: Oferecer conversas multi-turno com memória, diagnósticos de configuração e registros operacionais, através de uma CLI interativa.
+- **Abordagem técnica**: Refatorado para uma estrutura modular (`config`, `state`, `graph`, `cli`, `utils`, `tests`), utiliza um `StateGraph` com `InMemorySaver` para persistência de memória por thread. A CLI permite a troca de threads e o reset da memória. O agente executa pré-checagens de configuração e registra logs estruturados. Os testes cobrem os nós, o grafo e a configuração.
 
 ## agente_tool
 - **Objetivo funcional**: ensinar o agente a responder perguntas textuais e acionar uma calculadora quando detectar solicitação matemática.

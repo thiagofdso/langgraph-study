@@ -1,3 +1,4 @@
+
 # Tasks: Refactor Memory Agent
 
 **Input**: Design documents from `/specs/019-refactor-memoria-agent/`
@@ -21,9 +22,9 @@
 
 **Purpose**: Preparar a estrutura básica do projeto e arquivos de configuração compartilhados.
 
-- [ ] T001 Criar scaffolding do pacote `agente_memoria` (agente_memoria/utils/__init__.py, agente_memoria/tests/__init__.py, agente_memoria/docs/)
-- [ ] T002 Copiar modelo de ambiente para agente_memoria/.env.example a partir de agente_simples/.env.example
-- [ ] T003 [P] Registrar o grafo refatorado em langgraph.json apontando para agente_memoria/graph.py:create_app
+- [x] T001 Criar scaffolding do pacote `agente_memoria` (agente_memoria/utils/__init__.py, agente_memoria/tests/__init__.py, agente_memoria/docs/)
+- [x] T002 Copiar modelo de ambiente para agente_memoria/.env.example a partir de agente_simples/.env.example
+- [x] T003 [P] Registrar o grafo refatorado em langgraph.json apontando para agente_memoria/graph.py:create_app
 
 ---
 
@@ -33,11 +34,11 @@
 
 **⚠️ CRITICAL**: Nenhuma história pode começar antes desta fase concluir.
 
-- [ ] T004 Definir GraphState e validações auxiliares em agente_memoria/state.py
-- [ ] T005 Implementar AppConfig, criação de LLM/checkpointer e preflight base em agente_memoria/config.py
-- [ ] T006 [P] Criar utilitário de logging alinhado ao padrão do agente simples em agente_memoria/utils/logging.py
-- [ ] T007 [P] Criar módulo agente_memoria/utils/nodes.py com docstrings e assinaturas placeholder para nós
-- [ ] T008 Atualizar agente_memoria/main.py para delegar execução para agente_memoria/cli.py.main com docstring
+- [x] T004 Definir GraphState e validações auxiliares em agente_memoria/state.py
+- [x] T005 Implementar AppConfig, criação de LLM/checkpointer e preflight base em agente_memoria/config.py
+- [x] T006 [P] Criar utilitário de logging alinhado ao padrão do agente simples em agente_memoria/utils/logging.py
+- [x] T007 [P] Criar módulo agente_memoria/utils/nodes.py com docstrings e assinaturas placeholder para nós
+- [x] T008 Atualizar agente_memoria/main.py para delegar execução para agente_memoria/cli.py.main com docstring
 
 **Checkpoint**: Fundamentos prontos – histórias de usuário podem iniciar.
 
@@ -51,16 +52,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Definir prompts e mensagens padrão para memória em agente_memoria/prompts.py
-- [ ] T010 [P] [US1] Implementar `validate_question_node` com Pydantic em agente_memoria/utils/nodes.py
-- [ ] T011 [P] [US1] Implementar `load_history_node` para recuperar histórico do checkpointer em agente_memoria/utils/nodes.py
-- [ ] T012 [P] [US1] Implementar `invoke_model_node` utilizando AppConfig.create_llm em agente_memoria/utils/nodes.py
-- [ ] T013 [P] [US1] Implementar `update_memory_node` preservando sequências em agente_memoria/utils/nodes.py
-- [ ] T014 [US1] Implementar `format_response_node` com cálculo de duração e status em agente_memoria/utils/nodes.py
-- [ ] T015 [US1] Montar fluxo StateGraph completo em agente_memoria/graph.py ligando nós e checkpointer
-- [ ] T016 [US1] Construir CLI interativa com suporte a thread_id inicial em agente_memoria/cli.py
-- [ ] T017 [US1] Criar teste de integração multi-turno validando memória em agente_memoria/tests/test_graph.py
-- [ ] T018 [US1] Criar testes unitários para nós de validação e atualização de histórico em agente_memoria/tests/test_nodes.py
+- [x] T009 [P] [US1] Definir prompts e mensagens padrão para memória em agente_memoria/prompts.py
+- [x] T010 [P] [US1] Implementar `validate_question_node` com Pydantic em agente_memoria/utils/nodes.py
+- [x] T011 [P] [US1] Implementar `load_history_node` para recuperar histórico do checkpointer em agente_memoria/utils/nodes.py
+- [x] T012 [P] [US1] Implementar `invoke_model_node` utilizando AppConfig.create_llm em agente_memoria/utils/nodes.py
+- [x] T013 [P] [US1] Implementar `update_memory_node` preservando sequências em agente_memoria/utils/nodes.py
+- [x] T014 [US1] Implementar `format_response_node` com cálculo de duração e status em agente_memoria/utils/nodes.py
+- [x] T015 [US1] Montar fluxo StateGraph completo em agente_memoria/graph.py ligando nós e checkpointer
+- [x] T016 [US1] Construir CLI interativa com suporte a thread_id inicial em agente_memoria/cli.py
+- [x] T017 [US1] Criar teste de integração multi-turno validando memória em agente_memoria/tests/test_graph.py
+- [x] T018 [US1] Criar testes unitários para nós de validação e atualização de histórico em agente_memoria/tests/test_nodes.py
 
 **Checkpoint**: História 1 funcional e testável de forma independente.
 
@@ -74,9 +75,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Integrar preflight de configuração e atalhos `--check` na inicialização CLI em agente_memoria/cli.py
-- [ ] T020 [US2] Enriquecer `invoke_model_node` com mensagens de erro amigáveis e categorização em agente_memoria/utils/nodes.py
-- [ ] T021 [US2] Adicionar testes cobrindo falhas de credencial e parâmetros inválidos em agente_memoria/tests/test_config.py
+- [x] T019 [US2] Integrar preflight de configuração e atalhos `--check` na inicialização CLI em agente_memoria/cli.py
+- [x] T020 [US2] Enriquecer `invoke_model_node` com mensagens de erro amigáveis e categorização em agente_memoria/utils/nodes.py
+- [x] T021 [US2] Adicionar testes cobrindo falhas de credencial e parâmetros inválidos em agente_memoria/tests/test_config.py
 
 **Checkpoint**: História 2 pronta com bloqueios e diagnósticos independentes.
 
@@ -90,11 +91,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [P] [US3] Instrumentar logging estruturado em agente_memoria/utils/nodes.py e agente_memoria/cli.py
-- [ ] T023 [US3] Implementar comandos `/reset` e `/thread` com limpeza segura do histórico em agente_memoria/cli.py
-- [ ] T024 [US3] Estender testes para cobrir reset de thread e captura de logs em agente_memoria/tests/test_graph.py
-- [ ] T025 [US3] Escrever guia de operações, troubleshooting e fluxo de logs em agente_memoria/docs/operations.md
-- [ ] T026 [US3] Atualizar instruções de uso e logs em agente_memoria/README.md
+- [x] T022 [P] [US3] Instrumentar logging estruturado em agente_memoria/utils/nodes.py e agente_memoria/cli.py
+- [x] T023 [US3] Implementar comandos `/reset` e `/thread` com limpeza segura do histórico em agente_memoria/cli.py
+- [x] T024 [US3] Estender testes para cobrir reset de thread e captura de logs em agente_memoria/tests/test_graph.py
+- [x] T025 [US3] Escrever guia de operações, troubleshooting e fluxo de logs em agente_memoria/docs/operations.md
+- [x] T026 [US3] Atualizar instruções de uso e logs em agente_memoria/README.md
 
 **Checkpoint**: Histórias 1–3 independentes e auditáveis.
 
@@ -104,9 +105,9 @@
 
 **Purpose**: Ajustes finais, documentação e validações globais.
 
-- [ ] T027 [P] Executar suíte `pytest agente_memoria/tests -v` e capturar resultados no planejamento
-- [ ] T028 [P] Validar passo a passo de specs/019-refactor-memoria-agent/quickstart.md e ajustar se necessário
-- [ ] T029 Atualizar PROJETOS.md com resumo funcional e abordagem técnica do agente_memoria refatorado
+- [x] T027 [P] Executar suíte `pytest agente_memoria/tests -v` e capturar resultados no planejamento
+- [x] T028 [P] Validar passo a passo de specs/019-refactor-memoria-agent/quickstart.md e ajustar se necessário
+- [x] T029 Atualizar PROJETOS.md com resumo funcional e abordagem técnica do agente_memoria refatorado
 
 ---
 

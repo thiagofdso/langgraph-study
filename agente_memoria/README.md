@@ -1,30 +1,52 @@
-# Quickstart: Memory Agent
+# Agente de Memória
 
-## Setup
+Este agente demonstra como usar o LangGraph para construir um agente conversacional com memória.
 
-1.  **Create a virtual environment:**
+## Configuração
+
+1.  **Crie um ambiente virtual:**
     ```bash
     python -m venv venv
     source venv/bin/activate
     ```
 
-2.  **Install dependencies:**
+2.  **Instale as dependências:**
     ```bash
     pip install -r requirements.txt
     ```
 
-3.  **Create a `.env` file** in the `agente_memoria` directory with the following content:
+3.  **Crie um arquivo `.env`** no diretório `agente_memoria`. Você pode copiar o arquivo de exemplo:
+    ```bash
+    cp agente_memoria/.env.example agente_memoria/.env
     ```
-    GEMINI_API_KEY="YOUR_API_KEY"
-    ```
-    Replace `"YOUR_API_KEY"` with your actual Gemini API key.
+    Em seguida, edite o arquivo `.env` e adicione sua chave de API do Gemini.
 
-## Running the Agent
+## Executando o Agente
 
-To run the agent, execute the following command from the root directory:
+Para executar o agente, execute o seguinte comando a partir do diretório raiz:
 
 ```bash
-python agente_memoria/main.py
+python -m agente_memoria.cli
 ```
 
-The agent will first ask "quanto é 1+1?". After it responds, it will ask "Qual foi minha primeira pergunta?". The agent should respond correctly to both questions, demonstrating its memory.
+Você também pode especificar um ID de tópico para manter conversas separadas:
+
+```bash
+python -m agente_memoria.cli --thread minha-conversa
+```
+
+### Comandos
+
+Os seguintes comandos estão disponíveis na CLI:
+
+- `/sair`: Sai do agente.
+- `/reset`: Limpa o histórico do tópico atual, iniciando um novo tópico.
+- `/thread <novo-id-topico>`: Muda para um novo tópico de conversa.
+
+## Integração com LangGraph
+
+Este agente está integrado à CLI do LangGraph. Você pode visualizar o grafo do agente com o seguinte comando:
+
+```bash
+langgraph dev --graph agente_memoria/graph.py:app
+```
