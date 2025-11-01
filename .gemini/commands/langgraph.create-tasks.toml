@@ -1,9 +1,6 @@
 description = "Create tasks specific for langgraph."
 
 prompt = """
----
-description: Create tasks specific for langgraph.
----
 
 ## User Input
 
@@ -392,7 +389,7 @@ from pydantic import BaseModel, Field
 
 # Opção 1: TypedDict para performance
 class GraphState(TypedDict, total=False):
-    """Estado do grafo com reducer para messages."""
+    \"\"\"Estado do grafo com reducer para messages.\"\"\"
     messages: Annotated[list, add_messages]
     current_step: str
     results: dict
@@ -400,7 +397,7 @@ class GraphState(TypedDict, total=False):
 
 # Opção 2: Pydantic para validação + serialização
 class AppState(BaseModel):
-    """State com validação Pydantic."""
+    \"\"\"State com validação Pydantic.\"\"\"
     user_id: str = Field(..., min_length=1)
     messages: list = Field(default_factory=list)
     step_count: int = Field(default=0, ge=0, le=100)
@@ -457,7 +454,7 @@ from my_agent.state import GraphState
 from my_agent.config import config
 
 def node_process_input(state: GraphState) -> dict:
-    """Valida e processa input do usuário."""
+    \"\"\"Valida e processa input do usuário.\"\"\"
     try:
         # Processar
         result = validate_input(state["messages"][-1])
@@ -466,7 +463,7 @@ def node_process_input(state: GraphState) -> dict:
         return {"current_step": "error", "error": str(e)}
 
 def node_call_llm(state: GraphState) -> dict:
-    """Chama LLM com tratamento de erro."""
+    \"\"\"Chama LLM com tratamento de erro.\"\"\"
     from langchain_openai import ChatOpenAI
     
     llm = ChatOpenAI(
@@ -490,7 +487,7 @@ from my_agent.config import config
 from my_agent.utils.nodes import node_process_input, node_call_llm
 
 def create_graph():
-    """Factory function para criar graph configurável."""
+    \"\"\"Factory function para criar graph configurável.\"\"\"
     workflow = StateGraph(GraphState)
     
     # Adicionar nodes
@@ -523,7 +520,7 @@ def sample_state():
     )
 
 def test_graph_execution(sample_state):
-    """Testa execução completa do graph."""
+    \"\"\"Testa execução completa do graph.\"\"\"
     config = {"configurable": {"thread_id": "test-1"}}
     result = graph.invoke(sample_state, config)
     
@@ -531,7 +528,7 @@ def test_graph_execution(sample_state):
     assert result["current_step"] in ["error", "llm_called"]
 
 def test_node_independently():
-    """Testa node isoladamente."""
+    \"\"\"Testa node isoladamente.\"\"\"
     from my_agent.utils.nodes import node_process_input
     
     state = GraphState(messages=[{"content": "valid input"}])
@@ -755,7 +752,7 @@ class ValidationSchema(BaseModel):
 #### Advanced Reducers
 ```python
 def smart_merge(left: dict, right: dict) -> dict:
-    """Merge que detecta conflitos e timestamps."""
+    \"\"\"Merge que detecta conflitos e timestamps.\"\"\"
     result = left.copy()
     for key, value in right.items():
         if key in result and isinstance(value, dict):
@@ -836,13 +833,13 @@ from langgraph.checkpoint.memory import MemorySaver
 
 @task
 def fetch_data(query: str) -> dict:
-    """Task assíncrona com checkpointing automático."""
+    \"\"\"Task assíncrona com checkpointing automático.\"\"\"
     result = external_api_call(query)
     return result
 
 @entrypoint(checkpointer=MemorySaver())
 def my_workflow(input_data: dict) -> dict:
-    """Entrypoint: ponto de entrada do workflow."""
+    \"\"\"Entrypoint: ponto de entrada do workflow.\"\"\"
     
     # Task retorna Future-like - resolve com .result()
     data = fetch_data(input_data["query"]).result()
@@ -867,12 +864,12 @@ from langgraph.types import interrupt
 
 @task
 def generate_report(data: dict) -> str:
-    """Gerar relatório (checkpointed)."""
+    \"\"\"Gerar relatório (checkpointed).\"\"\"
     return f"Report: {data}"
 
 @entrypoint(checkpointer=checkpointer)
 def approval_workflow(data: dict) -> dict:
-    """Workflow com aprovação humana."""
+    \"\"\"Workflow com aprovação humana.\"\"\"
     
     # Gerar relatório (checkpointed)
     report = generate_report(data).result()
@@ -897,7 +894,7 @@ def counter_workflow(
     *,
     previous: Any = None
 ) -> int:
-    """Memória automática com 'previous'."""
+    \"\"\"Memória automática com 'previous'.\"\"\"
     previous_sum = previous or 0
     return number + previous_sum
 
@@ -913,7 +910,7 @@ counter_workflow.invoke(5, config)  # 8
 ```python
 @task
 def create_resource(resource_id: str) -> dict:
-    """Task idempotente - pode ser re-executada."""
+    \"\"\"Task idempotente - pode ser re-executada.\"\"\"
     
     # Check se já existe
     if resource_exists(resource_id):
@@ -938,7 +935,7 @@ class DataProcessor:
         self.process_task = task(self.process_data, name="process")
     
     def process_data(self, data: dict) -> dict:
-        """Este método será checkpointed."""
+        \"\"\"Este método será checkpointed.\"\"\"
         return {**data, "processed": True}
 
 # Usar em entrypoint
@@ -961,13 +958,13 @@ store = InMemoryStore()
 
 @task
 def save_memory(user_id: str, key: str, value: dict, *, store):
-    """Salvar em store long-term."""
+    \"\"\"Salvar em store long-term.\"\"\"
     store.put(f"user:{user_id}", key, value)
     return "saved"
 
 @entrypoint(checkpointer=checkpointer, store=store)
 def memory_workflow(user_id: str, fact: str) -> dict:
-    """Workflow com memória persistente."""
+    \"\"\"Workflow com memória persistente.\"\"\"
     
     # Recuperar memória anterior
     memory = store.get(f"user:{user_id}", "facts") or []
@@ -1009,7 +1006,7 @@ class SearchResult(BaseModel):
 
 @tool(args_schema=SearchQuerySchema)
 def search_web(query: str, max_results: int = 5, search_type: str = "web") -> list[SearchResult]:
-    """Busca web com schema validation."""
+    \"\"\"Busca web com schema validation.\"\"\"
     try:
         results = perform_search(query, max_results, search_type)
         validated = [SearchResult(**r) for r in results]
@@ -1023,7 +1020,7 @@ def search_web(query: str, max_results: int = 5, search_type: str = "web") -> li
 ### 2.2 Dynamic Tool Selection
 ```python
 def configure_tools_by_capability(state: State) -> list:
-    """Selecionar tools dinamicamente."""
+    \"\"\"Selecionar tools dinamicamente.\"\"\"
     all_tools = {
         "search": search_web,
         "math": calculator,
@@ -1102,7 +1099,7 @@ checkpointer = PostgresSaver.from_conn_string(
 from langgraph.store.memory import InMemoryStore
 
 def embed(texts: list[str]) -> list[list[float]]:
-    """Use embedding model real."""
+    \"\"\"Use embedding model real.\"\"\"
     return embeddings_model.embed_documents(texts)
 
 # Store com semantic search
@@ -1144,7 +1141,7 @@ all_results = store.search(
 #### Supervisor Pattern
 ```python
 def create_supervisor_agent(agents: dict[str, str]):
-    """Criar supervisor que roteia para especialistas."""
+    \"\"\"Criar supervisor que roteia para especialistas.\"\"\"
     
     supervisor_llm = ChatOpenAI(model="gpt-4").bind_tools(
         [agent_tool for agent_tool in agents.values()]
@@ -1170,14 +1167,14 @@ def create_supervisor_agent(agents: dict[str, str]):
 from langgraph.types import Send
 
 def distribute_tasks(state: State):
-    """Fan-out paralelo."""
+    \"\"\"Fan-out paralelo.\"\"\"
     return [
         Send("worker_agent", {"task": task, "task_id": i})
         for i, task in enumerate(state["tasks"])
     ]
 
 def aggregate_results(state: State) -> dict:
-    """Fan-in agregação."""
+    \"\"\"Fan-in agregação.\"\"\"
     all_results = [v for k, v in state.items() if k.startswith("worker_result_")]
     return {"final_results": all_results}
 ```
@@ -1189,7 +1186,7 @@ def aggregate_results(state: State) -> dict:
 from langgraph.types import interrupt
 
 def approval_required_node(state: State) -> dict:
-    """Pausar para aprovação humana."""
+    \"\"\"Pausar para aprovação humana.\"\"\"
     
     approval_context = {
         "action": "high_risk_transaction",
@@ -1212,7 +1209,7 @@ def approval_required_node(state: State) -> dict:
 #### Multi-mode Streaming
 ```python
 async def stream_modes(graph, input_state, config):
-    """Diferentes stream modes."""
+    \"\"\"Diferentes stream modes.\"\"\"
     
     # Values - estado completo
     async for chunk in graph.astream(input_state, config, stream_mode="values"):
@@ -1231,7 +1228,7 @@ async def stream_modes(graph, input_state, config):
 
 ```python
 def node_with_custom_events(state: State, config):
-    """Emit custom events durante processamento."""
+    \"\"\"Emit custom events durante processamento.\"\"\"
     
     writer = config.get("writer", lambda x: None)
     items = state["items"]
@@ -1268,7 +1265,7 @@ from langchain.agents.middleware import AgentMiddleware, hook_config
 class ConditionalJumpMiddleware(AgentMiddleware):
     @hook_config(can_jump_to=["end", "tools"])
     def after_model(self, state, runtime):
-        """Pular para node específico baseado em condição."""
+        \"\"\"Pular para node específico baseado em condição.\"\"\"
         
         if should_end(state):
             return {"jump_to": "end"}
@@ -1338,7 +1335,7 @@ def trim_messages(state: State, max_tokens: int = 4096) -> dict:
 ```python
 # ✅ Correto
 async def async_io_node(state: State) -> dict:
-    """Operações IO-bound paralelas."""
+    \"\"\"Operações IO-bound paralelas.\"\"\"
     
     results = await asyncio.gather(
         fetch_api_1(),
@@ -1369,7 +1366,7 @@ class ErrorCategory:
     AUTHENTICATION = "auth"      # Revalidar
 
 def categorize_error(error: Exception) -> str:
-    """Categorizar para estratégia apropriada."""
+    \"\"\"Categorizar para estratégia apropriada.\"\"\"
     if isinstance(error, ValidationError):
         return ErrorCategory.VALIDATION
     elif isinstance(error, (TimeoutError, ConnectionError)):
@@ -1380,7 +1377,7 @@ def categorize_error(error: Exception) -> str:
         return ErrorCategory.PERMANENT
 
 def error_handling_node(state: State) -> dict:
-    """Tratamento de erros com retry."""
+    \"\"\"Tratamento de erros com retry.\"\"\"
     
     error = state.get("error")
     if not error:
@@ -1426,7 +1423,7 @@ def retry_with_backoff(
     max_delay: float = 60.0,
     jitter: bool = True
 ):
-    """Decorator para retry com backoff."""
+    \"\"\"Decorator para retry com backoff.\"\"\"
     
     def wrapper(*args, **kwargs):
         for attempt in range(max_retries):
@@ -1501,13 +1498,13 @@ graph = (
 
 ```python
 def debug_node(state: State) -> dict:
-    logger.info(f"""
+    logger.info(f\"\"\"
     === Debug Info ===
     Timestamp: {datetime.now().isoformat()}
     State Keys: {list(state.keys())}
     Message Count: {len(state.get('messages', []))}
     Current Step: {state.get('current_step')}
-    """)
+    \"\"\")
     
     import pdb; pdb.set_trace()
     return state
@@ -1641,7 +1638,7 @@ tavily_search = TavilySearchResults(max_results=3)
 
 @tool
 def search_web(query: str) -> str:
-    """Busca na web usando Tavily."""
+    \"\"\"Busca na web usando Tavily.\"\"\"
     results = tavily_search.invoke(query)
     return format_search_results(results)
 
@@ -1655,7 +1652,7 @@ from langgraph.prebuilt import create_react_agent  # Deprecated
 ### 9.2 Multi-Agent Supervisor (Graph API)
 ```python
 def create_multi_agent_system():
-    """Sistema multi-agente."""
+    \"\"\"Sistema multi-agente.\"\"\"
     
     research_agent = create_research_agent()
     analysis_agent = create_analysis_agent()
@@ -1688,14 +1685,14 @@ from duckduckgo_search import DDGS
 
 @task
 def web_search(query: str, max_results: int = 5) -> str:
-    """Busca web checkpointed."""
+    \"\"\"Busca web checkpointed.\"\"\"
     with DDGS() as ddgs:
         results = list(ddgs.text(query, max_results=max_results))
     return format_results(results)
 
 @task
 def llm_response(query: str, context: str) -> str:
-    """Resposta LLM."""
+    \"\"\"Resposta LLM.\"\"\"
     from langchain_openai import ChatOpenAI
     llm = ChatOpenAI(model="gpt-4")
     prompt = f"Context: {context}\n\nQuestion: {query}"
@@ -1703,7 +1700,7 @@ def llm_response(query: str, context: str) -> str:
 
 @entrypoint(checkpointer=MemorySaver())
 def search_agent(user_query: str, *, previous: list = None) -> dict:
-    """Agent com busca web e memória."""
+    \"\"\"Agent com busca web e memória.\"\"\"
     
     history = previous or []
     
@@ -2235,7 +2232,7 @@ from langchain.agents.middleware import hook_config
 class ConditionalJumpMiddleware(AgentMiddleware):
     @hook_config(can_jump_to=["end", "tools"])
     def after_model(self, state, runtime):
-        """Pular para node específico."""
+        \"\"\"Pular para node específico.\"\"\"
         
         if should_end(state):
             return {"jump_to": "end"}

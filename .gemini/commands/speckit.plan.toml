@@ -35,7 +35,6 @@ You **MUST** consider the user input before proceeding (if not empty).
 ### Phase 0: Outline & Research
 
 Before drafting research tasks, extract constraints and architectural direction from `langgraph-tasks.md` (if loaded) so investigations align with the prescribed structure.
-
 1. **Extract unknowns from Technical Context** above:
    - For each NEEDS CLARIFICATION → research task
    - For each dependency → best practices task
