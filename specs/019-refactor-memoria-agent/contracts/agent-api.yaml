@@ -1,0 +1,157 @@
+openapi: 3.1.0
+info:
+  title: Agente Memória CLI Abstração
+  version: 0.1.0
+  description: >-
+    Interface conceitual para validar fluxos do agente de memória via testes automatizados.
+    Mapeia operações da CLI para endpoints REST equivalentes.
+servers:
+  - url: http://localhost:8000
+    description: Mock server usado apenas para testes.
+paths:
+  /config/check:
+    get:
+      summary: Executa pré-checagem de configuração
+      operationId: getConfigCheck
+      responses:
+        '200':
+          description: Configurações válidas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [pass, warn]
+                  warnings:
+                    type: array
+                    items:
+                      type: string
+        '503':
+          description: Falha de configuração identificada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [fail]
+                  message:
+                    type: string
+  /threads/{threadId}/messages:
+    post:
+      summary: Envia nova mensagem para o thread e recebe resposta contextualizada
+      operationId: postThreadMessage
+      parameters:
+        - name: threadId
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 64
+            pattern: '^[A-Za-z0-9_-]+$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [user]
+                content:
+                  type: string
+                  minLength: 5
+                command:
+                  type: string
+                  description: Comando especial detectado (/reset, /thread <id>)
+              required: [role, content]
+      responses:
+        '200':
+          description: Resposta produzida pelo agente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resposta:
+                    type: string
+                  status:
+                    type: string
+                    enum: [completed, error, reset]
+                  duration_seconds:
+                    type: number
+                    minimum: 0
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        role:
+                          type: string
+                        content:
+                          type: string
+                  warnings:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Entrada inválida ou comando não suportado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [error]
+                  message:
+                    type: string
+  /threads/{threadId}/reset:
+    post:
+      summary: Reseta o histórico do thread e retorna confirmação
+      operationId: resetThread
+      parameters:
+        - name: threadId
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 64
+            pattern: '^[A-Za-z0-9_-]+$'
+      responses:
+        '204':
+          description: Histórico limpo com sucesso
+        '404':
+          description: Thread inexistente
+
+components:
+  schemas:
+    ConfigStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pass, warn, fail]
+        message:
+          type: string
+        warnings:
+          type: array
+          items:
+            type: string
+    ThreadMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
