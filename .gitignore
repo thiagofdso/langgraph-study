@@ -26,7 +26,7 @@ Thumbs.db
 .idea/
 
 # Temporary ripgrep download directories
-download-ripgrep*/pdf_to_md/*.md
+download-ripgrep*/
 pdf_to_md/*.md
 agente_web/smoke_test_output.txt
 
