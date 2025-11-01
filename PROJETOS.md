@@ -3,8 +3,8 @@
 Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes_*` e `pdf_to_md`, detalhando a funcionalidade de cada um e a abordagem técnica utilizada para cumpri-la.
 
 ## agente_simples
-- **Objetivo funcional**: responder a uma pergunta digitada pelo usuário com uma única chamada ao modelo.
-- **Abordagem técnica**: define um `StateGraph` minimalista com um único nó `agent` que invoca o `ChatGoogleGenerativeAI` (modelo `gemini-2.5-flash`) e retorna o texto produzido diretamente ao usuário.
+- **Objetivo funcional**: responder perguntas pontuais em português via CLI, com validação prévia e mensagens amigáveis em caso de erro.
+- **Abordagem técnica**: StateGraph sequencial (`validate_input` → `invoke_model` → `format_response`) organizado em módulos (`state.py`, `config.py`, `utils/`, `graph.py`, `cli.py`). O fluxo executa pré-checagens de configuração, trata falhas do provedor com mensagens controladas e registra logs estruturados em arquivo através de `utils.logging`. Testes unitários e de integração cobrem nodes, grafo e CLI.
 
 ## agente_memoria
 - **Objetivo funcional**: demonstrar uma conversa curta onde o agente lembra do que foi dito anteriormente para resolver instruções encadeadas.

@@ -1,0 +1,75 @@
+2025-11-01 11:52:49,609 INFO agente_simples.utils.nodes Resposta obtida do modelo
+2025-11-01 11:52:49,611 INFO agente_simples.utils.nodes Resposta formatada entregue ao usuário
+2025-11-01 11:52:49,624 INFO agente_simples.utils.nodes Resposta obtida do modelo
+2025-11-01 11:52:49,625 INFO agente_simples.utils.nodes Resposta formatada entregue ao usuário
+2025-11-01 11:52:49,631 ERROR agente_simples.utils.nodes Falha ao chamar o modelo
+Traceback (most recent call last):
+  File "/root/code/langgraph/agente_simples/utils/nodes.py", line 71, in invoke_model_node
+    llm = config.create_llm()
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1199, in _execute_mock_call
+    result = effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/code/langgraph/agente_simples/tests/test_graph.py", line 44, in failing_llm_factory
+    raise RuntimeError("provider offline")
+RuntimeError: provider offline
+2025-11-01 11:52:49,633 WARNING agente_simples.utils.nodes Resposta final contém erro controlado
+2025-11-01 11:52:49,636 INFO agente_simples.cli Execução concluída com sucesso | Pergunta='Quantos estados tem o Brasil?' status=unknown
+2025-11-01 11:52:49,640 ERROR agente_simples.cli Falha de configuração | detalhes=[{'name': 'GEMINI_API_KEY', 'result': 'fail', 'message': 'Configure GEMINI_API_KEY no arquivo .env antes de continuar.'}]
+2025-11-01 11:53:48,179 INFO agente_simples.cli Execução concluída com sucesso | Pergunta='Quantos estados tem o Brasil?' status=unknown
+2025-11-01 11:53:48,182 ERROR agente_simples.cli Falha de configuração | detalhes=[{'name': 'GEMINI_API_KEY', 'result': 'fail', 'message': 'Configure GEMINI_API_KEY no arquivo .env antes de continuar.'}]
+2025-11-01 11:53:48,195 INFO agente_simples.utils.nodes Resposta obtida do modelo
+2025-11-01 11:53:48,202 INFO agente_simples.utils.nodes Resposta formatada entregue ao usuário
+2025-11-01 11:53:48,209 ERROR agente_simples.utils.nodes Falha ao chamar o modelo
+Traceback (most recent call last):
+  File "/root/code/langgraph/agente_simples/utils/nodes.py", line 71, in invoke_model_node
+    llm = config.create_llm()
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1199, in _execute_mock_call
+    result = effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/code/langgraph/agente_simples/tests/test_graph.py", line 44, in failing_llm_factory
+    raise RuntimeError("provider offline")
+RuntimeError: provider offline
+2025-11-01 11:53:48,210 WARNING agente_simples.utils.nodes Resposta final contém erro controlado
+2025-11-01 11:53:48,213 INFO agente_simples.utils.nodes Resposta obtida do modelo
+2025-11-01 11:53:48,214 INFO agente_simples.utils.nodes Resposta formatada entregue ao usuário
+2025-11-01 11:54:26,518 INFO agente_simples.utils.nodes Resposta obtida do modelo
+2025-11-01 11:54:26,519 INFO agente_simples.utils.nodes Resposta formatada entregue ao usuário
+2025-11-01 11:54:26,520 INFO agente_simples.cli Execução concluída com sucesso | Pergunta='Qual a capital do Brasil?' status=completed duration=2.99s
+2025-11-01 11:58:01,583 INFO agente_simples.cli Execução concluída com sucesso | Pergunta='Quantos estados tem o Brasil?' status=unknown
+2025-11-01 11:58:01,587 ERROR agente_simples.cli Falha de configuração | detalhes=[{'name': 'GEMINI_API_KEY', 'result': 'fail', 'message': 'Configure GEMINI_API_KEY no arquivo .env antes de continuar.'}]
+2025-11-01 11:58:01,601 INFO agente_simples.utils.nodes Resposta obtida do modelo
+2025-11-01 11:58:01,608 INFO agente_simples.utils.nodes Resposta formatada entregue ao usuário
+2025-11-01 11:58:01,614 ERROR agente_simples.utils.nodes Falha ao chamar o modelo
+Traceback (most recent call last):
+  File "/root/code/langgraph/agente_simples/utils/nodes.py", line 72, in invoke_model_node
+    llm = config.create_llm()
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1199, in _execute_mock_call
+    result = effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/code/langgraph/agente_simples/tests/test_graph.py", line 48, in failing_llm_factory
+    raise RuntimeError("provider offline")
+RuntimeError: provider offline
+2025-11-01 11:58:01,615 WARNING agente_simples.utils.nodes Resposta final contém erro controlado
+2025-11-01 11:58:01,618 INFO agente_simples.utils.nodes Resposta obtida do modelo
+2025-11-01 11:58:01,619 INFO agente_simples.utils.nodes Resposta formatada entregue ao usuário

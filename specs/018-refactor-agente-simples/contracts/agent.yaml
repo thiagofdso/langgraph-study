@@ -1,0 +1,114 @@
+openapi: 3.1.0
+info:
+  title: Simple Agent CLI Facade
+  version: 1.0.0
+  description: >
+    Interfaces HTTP opcionais para automatizar o agente simples em ambientes
+    de teste ou integração contínua. Cada operação reflete uma jornada do CLI.
+servers:
+  - url: https://example.com
+paths:
+  /agent/run:
+    post:
+      summary: Executa o agente com uma pergunta única
+      tags: [Agent]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question:
+                  type: string
+                  minLength: 5
+                  description: Pergunta em português a ser respondida.
+                locale:
+                  type: string
+                  default: pt-BR
+                temperature:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                  default: 0
+      responses:
+        "200":
+          description: Resposta produzida, mesmo que contenha limitação.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, answer]
+                properties:
+                  status:
+                    type: string
+                    enum: [completed, error]
+                  answer:
+                    type: string
+                  metadata:
+                    type: object
+                    additionalProperties: true
+        "422":
+          description: Entrada inválida (pergunta curta ou vazia).
+  /agent/health:
+    get:
+      summary: Verifica dependências obrigatórias antes da execução
+      tags: [Agent]
+      responses:
+        "200":
+          description: Configuração válida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  checks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        result:
+                          type: string
+                          enum: [pass, fail, warn]
+        "503":
+          description: Falha em alguma verificação (ex.: credencial ausente)
+  /agent/logs:
+    get:
+      summary: Lista registros recentes de execução para auditoria
+      tags: [Agent]
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          description: Quantidade máxima de entradas retornadas.
+      responses:
+        "200":
+          description: Lista de registros em ordem decrescente por timestamp.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [timestamp, level, message]
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+                    level:
+                      type: string
+                      enum: [DEBUG, INFO, WARNING, ERROR]
+                    message:
+                      type: string
+                    context:
+                      type: object
+                      additionalProperties: true

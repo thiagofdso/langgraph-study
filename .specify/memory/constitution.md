@@ -1,11 +1,11 @@
 <!--
 Sync Impact Report:
-Version change: 1.4.0 -> 1.5.0
-List of modified principles: XX. Referencing Prior Projects During /speckit.plan (added)
-Added sections: XX. Referencing Prior Projects During /speckit.plan
+Version change: 1.5.0 -> 1.6.0
+List of modified principles: None (new principle added)
+Added sections: XXI. Function Documentation
 Removed sections: None
 Templates requiring updates:
-- .specify/templates/plan-template.md ✅ updated (added instrução para revisar PROJETOS.md)
+- .specify/templates/plan-template.md ✅ updated (Constitution Check notes docstring compliance)
 - .specify/templates/spec-template.md ✅ no changes required
 - .specify/templates/tasks-template.md ✅ no changes required
 - Command templates (n/a) — none present
@@ -75,6 +75,9 @@ While using `/speckit.implement`, developers MUST provide checkpoints after comp
 ### XX. Referencing Prior Projects During `/speckit.plan`
 Before finalizing any `/speckit.plan`, developers MUST review `PROJETOS.md` to identify projects with similar requirements, examine the referenced code, and incorporate relevant lessons or patterns into the plan. This ensures new work leverages existing solutions, preserves consistency, and avoids duplicating documented effort.
 
+### XXI. Function Documentation
+Every function, method, and coroutine MUST include a Python docstring describing its purpose, inputs, and notable side effects or return values. Docstrings ensure maintainers can understand agent behaviour quickly and provide a single source of truth for automated documentation and review.
+
 ## Development Guidelines
 
 All development activities should adhere to the principles outlined above, ensuring consistency and quality across all projects.
@@ -87,4 +90,4 @@ Significant changes require approval. The process for seeking approval will be d
 
 This Constitution supersedes all other practices. Amendments require documentation, approval, and a migration plan. All pull requests and code reviews MUST verify compliance with these principles. Complexity MUST be justified.
 
-**Version**: 1.5.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-10-31
+**Version**: 1.6.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-11-01
