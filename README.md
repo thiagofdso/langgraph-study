@@ -43,3 +43,16 @@ agente_web/
 ```
 
 Para explorar outros agentes de estudo, consulte as pastas `agente_simples/`, `agente_tool/`, etc., cada uma com seu próprio `main.py`.
+
+## Executando o LangGraph CLI e Dashboard
+
+Para rodar o ambiente local com suporte ao dashboard do LangGraph:
+
+1. Execute `langgraph dev --config langgraph.json --host 0.0.0.0` para iniciar o CLI local.
+2. Gere um certificado SSL autoassinado e ajuste as variáveis de ambiente `SSL_PATH` (caminho do certificado/chave) e `NGINX_CONF_PATH` (arquivo de configuração do NGINX) para refletirem os caminhos corretos.
+3. Rode o script `nginx/start.sh` para iniciar o proxy NGINX com o novo certificado.
+4. Adicione a entrada `langgraph.local` ao arquivo de hosts do sistema:
+   - Linux: `/etc/hosts`
+   - Windows: `C:\\Windows\\System32\\drivers\\etc\\hosts`
+5. No Windows, instale o certificado gerado em **Autoridades de Certificação Raiz Confiáveis** para evitar avisos de segurança.
+6. Acesse `https://smith.langchain.com/studio/?baseUrl=https://langgraph.local` para visualizar o dashboard do LangGraph.

@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  meu-nginx:
+    image: nginx
+    container_name: meu-nginx
+    ports:
+      - "443:443"
+    volumes:
+      - ${SSL_PATH}:/etc/nginx/ssl
+      - ${NGINX_CONF_PATH}:/etc/nginx/nginx.conf
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

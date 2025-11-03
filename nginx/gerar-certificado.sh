@@ -1,0 +1,1 @@
+openssl req -x509 -sha256 -newkey rsa:2048 -keyout selfsigned.key -out selfsigned.crt -days 365 -nodes -config openssl.cnf -extensions req_ext

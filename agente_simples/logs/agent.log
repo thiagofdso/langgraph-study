@@ -73,3 +73,10 @@ RuntimeError: provider offline
 2025-11-01 11:58:01,615 WARNING agente_simples.utils.nodes Resposta final contém erro controlado
 2025-11-01 11:58:01,618 INFO agente_simples.utils.nodes Resposta obtida do modelo
 2025-11-01 11:58:01,619 INFO agente_simples.utils.nodes Resposta formatada entregue ao usuário
+2025-11-03 09:09:41,895 ERROR agente_simples.utils.nodes Pergunta ausente ao chamar o modelo
+2025-11-03 09:09:41,901 WARNING agente_simples.utils.nodes Resposta final contém erro controlado
+2025-11-03 09:11:40,969 INFO agente_simples.utils.nodes Resposta obtida do modelo
+2025-11-03 09:11:40,970 INFO agente_simples.utils.nodes Resposta formatada entregue ao usuário
+2025-11-03 09:11:40,970 INFO agente_simples.cli Execução concluída com sucesso | Pergunta='quem descobriu o brasil' status=completed duration=9.87s
+2025-11-03 09:18:47,252 INFO agente_simples.utils.nodes Resposta obtida do modelo
+2025-11-03 09:18:47,257 INFO agente_simples.utils.nodes Resposta formatada entregue ao usuário
