@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from typing import Annotated, Any, Dict, List
-
+from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
 from pydantic import BaseModel, Field, field_validator
 from typing_extensions import TypedDict
@@ -31,7 +31,7 @@ class DialogueInput(BaseModel):
 class GraphState(TypedDict, total=False):
     """LangGraph shared state contract for the simple agent."""
 
-    messages: Annotated[List[Dict[str, Any]], add_messages]
+    messages: Annotated[List[BaseMessage], add_messages]
     metadata: Dict[str, Any]
     status: str
     resposta: str

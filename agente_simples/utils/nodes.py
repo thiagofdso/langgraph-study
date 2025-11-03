@@ -22,23 +22,11 @@ logger = get_logger(__name__)
 MessageInput = Union[Dict[str, str], BaseMessage]
 
 
-def _extract_user_question(state: GraphState) -> str:
-    """Return the most recent user-authored message content, if present."""
-    messages: List[MessageInput] = state.get("messages", []) or []
-    for message in reversed(messages):
-        if isinstance(message, dict):
-            if message.get("role") == "user":
-                return message.get("content", "").strip()
-        elif isinstance(message, BaseMessage):
-            if getattr(message, "type", None) in {"human", "user"}:
-                return getattr(message, "content", "").strip()
-    return ""
-
 
 def validate_question_node(state: GraphState) -> Dict[str, object]:
     """Validate user input and prepare metadata for downstream nodes."""
 
-    question = _extract_user_question(state)
+    question = state.get("messages", [])[-1].content
     dialogue = DialogueInput(pergunta=question)
     logger.debug("Pergunta validada", extra={"question": dialogue.pergunta})
 

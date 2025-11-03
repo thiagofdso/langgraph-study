@@ -1,3 +1,4 @@
+source .env
 service docker start
 cd nginx && docker-compose down && docker-compose rm && docker-compose up -d && cd ..
 echo "Acesse a URL:"
