@@ -38,3 +38,4 @@ agente_simples/logs/*
 agente_memoria/logs/*
 !agente_memoria/logs/.gitkeep
 agent.log
+.langgraph_api/
