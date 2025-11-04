@@ -33,6 +33,8 @@
 
 [Gates determined based on constitution file]
 - Confirm documentation plan ensures every new or modified function includes a descriptive docstring (Principle XXI).
+- Confirm any required update to `langgraph.json` appends new agents without removing existing registrations (Principle XXII).
+- Confirm planejamento de novos nodes consulta `graph-nodes-patterns.md` e prevê atualização do catálogo se surgirem responsabilidades inéditas (Principle XXIII).
 
 ## Project Structure
 

@@ -155,6 +155,8 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX [P] Documentation updates in docs/
 - [ ] TXXX Update PROJETOS.md with feature summary and technical notes
 - [ ] TXXX Code cleanup and refactoring
+- [ ] TXXX Update `langgraph.json` incrementally to register new agents without removing existing entries
+- [ ] TXXX Revisar e, se necessário, atualizar `graph-nodes-patterns.md` com novos nodes ou responsabilidades
 - [ ] TXXX Performance optimization across all stories
 - [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
 - [ ] TXXX Security hardening

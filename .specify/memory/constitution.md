@@ -1,13 +1,13 @@
 <!--
 Sync Impact Report:
-Version change: 1.5.0 -> 1.6.0
-List of modified principles: None (new principle added)
-Added sections: XXI. Function Documentation
+Version change: 1.7.0 -> 1.8.0
+List of modified principles: XXIII. Node Naming Playbook (new)
+Added sections: XXIII. Node Naming Playbook
 Removed sections: None
 Templates requiring updates:
-- .specify/templates/plan-template.md ✅ updated (Constitution Check notes docstring compliance)
+- .specify/templates/plan-template.md ✅ updated (Constitution Check references graph-nodes-patterns.md)
 - .specify/templates/spec-template.md ✅ no changes required
-- .specify/templates/tasks-template.md ✅ no changes required
+- .specify/templates/tasks-template.md ✅ updated (Phase N checklist covers graph-nodes-patterns.md sync)
 - Command templates (n/a) — none present
 Follow-up TODOs: None
 -->
@@ -78,6 +78,12 @@ Before finalizing any `/speckit.plan`, developers MUST review `PROJETOS.md` to i
 ### XXI. Function Documentation
 Every function, method, and coroutine MUST include a Python docstring describing its purpose, inputs, and notable side effects or return values. Docstrings ensure maintainers can understand agent behaviour quickly and provide a single source of truth for automated documentation and review.
 
+### XXII. Incremental langgraph.json Updates
+Updates to the root `langgraph.json` MUST be incremental. Register new agents or graphs by appending entries without deleting or modifying existing registrations, preserving backwards compatibility for previously shipped agents.
+
+### XXIII. Node Naming Playbook
+Before criar ou modificar nodes e graphs LangGraph, desenvolvedores MUST consultar `graph-nodes-patterns.md` para reutilizar nomenclaturas existentes de funcionalidades equivalentes. Ao introduzir novas responsabilidades, eles MUST atualizar o arquivo com os novos nomes e descrições para manter o catálogo de padrões completo.
+
 ## Development Guidelines
 
 All development activities should adhere to the principles outlined above, ensuring consistency and quality across all projects.
@@ -90,4 +96,4 @@ Significant changes require approval. The process for seeking approval will be d
 
 This Constitution supersedes all other practices. Amendments require documentation, approval, and a migration plan. All pull requests and code reviews MUST verify compliance with these principles. Complexity MUST be justified.
 
-**Version**: 1.6.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-11-01
+**Version**: 1.8.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-11-04
