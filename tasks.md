@@ -75,7 +75,7 @@
 
 - [ ] **T012 | Estado tipado (`state.py`)**
   - Reutilizar padrão de TypedDict com reducer para mensagens, conforme `agente_simples/state.py`.
-  - Acrescentar campos para metadados de rota de ferramentas (`selected_tool`, `tool_arguments`, `status`).
+  - Acrescentar campos para metadados de rota de ferramentas (`selected_tools`, `tool_plans`, `status`).
   - Modelo sugerido:
     ```python
     class GraphState(TypedDict, total=False):
@@ -83,7 +83,7 @@
         metadata: dict[str, Any]
         status: str
         resposta: str
-        selected_tool: str
+        selected_tools: list[str]
         tool_call: dict[str, Any]
     ```
   - Criar `ThreadConfig` mínimo com `thread_id` validado (reuso de `agente_memoria`).
@@ -121,7 +121,7 @@
     - `invoke_model` – chamar LLM, passando metadata e mensagens.
     - `format_response` – formatar resposta final e setar status.
   - Introduzir novos nodes específicos para fluxo com ferramentas:
-    - `plan_tool_usage` – analisar mensagem e decidir se a ferramenta deve ser chamada (retorna `tool_plan`).
+  - `plan_tool_usage` – analisar mensagem e decidir se a ferramenta deve ser chamada (retorna lista `tool_plans`).
     - `execute_tools` – encaminhar para `ToolNode` quando apropriado e registrar resultado da ferramenta em `metadata`.
   - Cada função deve possuir docstring clara e logging (usar `get_logger` inspirado nos outros agentes).
   - Exemplo de docstring e retorno:
@@ -133,9 +133,11 @@
         if tool_calls:
             return {
                 "status": DEFAULT_STATUS_VALIDATED,
-                "tool_plan": {"name": tool_calls[0]["name"], "args": tool_calls[0]["args"]},
+                "tool_plans": [
+                    {"name": tool_calls[0]["name"], "args": tool_calls[0]["args"]}
+                ],
             }
-        return {"tool_plan": None}
+        return {"tool_plans": []}
     ```
 
 - [ ] **T022 | Atualizar `graph-nodes-patterns.md` com novos padrões**
@@ -299,4 +301,3 @@
 - `agente_memoria/graph.py`, `agente_memoria/state.py`, `agente_memoria/utils/nodes.py` – implementação de checkpointer e metadados.
 - `graph-nodes-patterns.md` – catálogo de nomes de nodes; deve ser atualizado com `plan_tool_usage` e `execute_tools`.
 - Constituição (v1.8.0) – princípios XXI, XXII, XXIII regendo docstrings, manutenção incremental do `langgraph.json` e padronização de nodes.
-

@@ -4,30 +4,66 @@ from __future__ import annotations
 
 import math
 import time
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict, List, Optional
 
-from langchain_core.messages import AIMessage, BaseMessage, SystemMessage, ToolMessage
+from langchain_core.messages import (
+    AIMessage,
+    BaseMessage,
+    HumanMessage,
+    SystemMessage,
+    ToolMessage,
+)
 
 from agente_tool.config import AppConfig, ConfigurationError, config as default_config
 from agente_tool.state import GraphState, ToolPlan
 from agente_tool.utils.logging import get_logger
-from agente_tool.utils.tools import calculator, CalculatorError
 
 logger = get_logger(__name__)
 
-SYSTEM_PROMPT = (
-    "Você é um assistente matemático especializado em resolver operações numéricas usando a ferramenta `calculator`. "
-    "Sempre responda em português. Sempre que a pergunta exigir qualquer cálculo "
-    "aritmético ou algébrico, chame a ferramenta `calculator` informando "
-    "um único campo `expression` com a operação em notação infixa (ex.: '300 / 4'). "
-    "Faça isso mesmo caso entenda que pode fazer o calculo sózinho."
-    "Ela é necessária para auditar todos calculos feitos."
-    "Após receber o resultado da ferramenta, explique de forma breve o raciocínio e "
-    "apresente o valor final. Se a pergunta não envolver contas, responda normalmente. "
-    "Caso a ferramenta retorne erro, peça novos dados ao usuário em vez de inventar um valor."
-    "Não mencione a chamada da ferramenta calculator nem seu funcionamento durante sua resposta."
-    "Caso entenda que não é possível usar a ferramenta explique-se."
-)
+SYSTEM_PROMPT = """
+# MISSÃO
+Você é um assistente matemático e sua única função é resolver problemas numéricos utilizando a ferramenta `calculator`. Você se comunica exclusivamente em português.
+
+---
+
+# REGRAS CRÍTICAS
+1.  **USO OBRIGATÓRIO DA FERRAMENTA**: Para QUALQUER operação matemática, desde as mais simples (ex: 2 + 2) até as mais complexas, você DEVE OBRIGATORIAMENTE chamar a ferramenta `calculator`. Esta regra é inquebrável, pois a ferramenta audita todos os cálculos. NÃO realize nenhum cálculo diretamente.
+2.  **FORMATO DA EXPRESSÃO**: A ferramenta aceita um único argumento `expression`, que deve ser uma string contendo a operação matemática em notação infixa (ex: `(100 / 5) * 2`).
+3.  **TRANSPARÊNCIA ZERO**: NUNCA mencione a ferramenta `calculator` ou o processo de cálculo em sua resposta ao usuário. Aja como se você tivesse calculado o resultado instantaneamente.
+4.  **MANUSEIO DE ERROS**: Se a ferramenta `calculator` retornar um erro, NÃO invente um resultado. Informe ao usuário que a operação não pôde ser realizada e peça para que ele reformule a pergunta com dados claros e válidos.
+5.  **FOCO EXCLUSIVO**: Se a pergunta do usuário não contiver um problema matemático calculável (ex: "Qual a história da matemática?"), informe educadamente que sua especialidade é resolver cálculos e que você não pode atender a essa solicitação.
+6. **VALORES ABSOLUTOS**: Exiba os resultados absolutos, exemplo 1/2 =0,5
+
+---
+
+# FLUXO DE TRABALHO
+1.  **Analisar**: O usuário faz uma pergunta.
+2.  **Formular**: Se contiver um cálculo, traduza-o para uma expressão matemática em string.
+3.  **Executar**: Chame a ferramenta `calculator` com a expressão.
+4.  **Responder**: Após receber o resultado da ferramenta:
+    -   Inicie com uma breve explicação do raciocínio ou dos passos do cálculo.
+    -   Apresente o **resultado final** de forma clara.
+
+---
+
+# EXEMPLOS
+
+**Exemplo 1: Cálculo Simples**
+-   **Usuário**: "Quanto é 300 dividido por 4?"
+-   **Sua Ação**: Chamar `calculator(expression='300 / 4')`
+-   **Resposta Final (após receber '75')**: "Para calcular 300 dividido por 4, realizamos a divisão simples. O resultado é **75**."
+
+**Exemplo 2: Cálculo Complexo**
+-   **Usuário**: "Eu tinha R$ 1.500, paguei uma conta de R$ 350 e depois recebi 20% do valor que sobrou. Com quanto fiquei?"
+-   **Sua Ação**: Chamar `calculator(expression='(1500 - 350) * 1.20')`
+-   **Resposta Final (após receber '1380')**: "Primeiro, subtraímos a conta de R$ 350 do valor inicial de R$ 1.500, restando R$ 1.150. Em seguida, calculamos um acréscimo de 20% sobre esse valor. O montante final é **R$ 1.380,00**."
+
+**Exemplo 3: Pergunta Não-Matemática**
+-   **Usuário**: "Qual a sua cor favorita?"
+-   **Sua Ação**: Não chamar a ferramenta.
+-   **Resposta Final**: "Minha especialidade é resolver operações matemáticas. Não consigo responder a perguntas sobre preferências pessoais."
+"""
+
 
 STATUS_VALIDATED = "validated"
 STATUS_RESPONDED = "responded"
@@ -117,12 +153,20 @@ def plan_tool_usage(state: GraphState) -> Dict[str, Any]:
         logger.info(
             "Nenhuma saída do modelo disponível para planejamento de ferramentas."
         )
-        return {"selected_tool": None, "tool_plan": None}
+        return {
+            "selected_tool": None,
+            "tool_plan": None,
+            "pending_tool_calls": [],
+        }
     last_message = ai_messages[-1]
     tool_calls = getattr(last_message, "tool_calls", None) or []
     if not tool_calls:
         logger.info("Modelo não solicitou ferramentas nesta rodada.")
-        return {"selected_tool": None, "tool_plan": None}
+        return {
+            "selected_tool": None,
+            "tool_plan": None,
+            "pending_tool_calls": [],
+        }
 
     call = tool_calls[0]
     tool_name = call.get("name")
@@ -134,6 +178,7 @@ def plan_tool_usage(state: GraphState) -> Dict[str, Any]:
         return {
             "selected_tool": tool_name,
             "tool_plan": None,
+            "pending_tool_calls": [],
             "status": STATUS_ERROR,
             "resposta": (
                 "Recebi uma solicitação para uma ferramenta desconhecida. "
@@ -147,6 +192,15 @@ def plan_tool_usage(state: GraphState) -> Dict[str, Any]:
         "call_id": call.get("id"),
     }
 
+    pending_calls: List[Dict[str, Any]] = [
+        {
+            "name": tool_name,
+            "args": call.get("args", {}),
+            "call_id": call.get("id"),
+        }
+        for call in tool_calls
+    ]
+
     logger.info(
         "Plano de ferramenta detectado",
         extra={"tool": tool_name, "tool_args": plan["args"]},
@@ -154,59 +208,18 @@ def plan_tool_usage(state: GraphState) -> Dict[str, Any]:
     return {
         "selected_tool": tool_name,
         "tool_plan": plan,
+        "pending_tool_calls": pending_calls,
     }
 
 
-def execute_tools(
-    state: GraphState,
-    *,
-    calculator_fn: Callable[[str], Any] | None = None,
-) -> Dict[str, Any]:
-    """Execute the planned tool and attach the result to the message history."""
+def handle_tool_result(state: GraphState) -> Dict[str, Any]:
+    """Process the latest ToolNode output and update the agent state accordingly."""
 
-    plan = state.get("tool_plan")
-    if not plan:
-        return {}
-
-    tool_name = plan.get("name")
-    if tool_name != _TOOL_NAME:
-        logger.error("Ferramenta planejada não suportada", extra={"tool": tool_name})
-        return {
-            "status": STATUS_ERROR,
-            "resposta": (
-                "A ferramenta solicitada não está disponível. Utilize apenas operações matemáticas simples."
-            ),
-        }
-
-    expression = plan.get("args", {}).get("expression")
-    if not expression:
+    messages = state.get("messages") or []
+    tool_messages = [msg for msg in messages if isinstance(msg, ToolMessage)]
+    if not tool_messages:
         logger.error(
-            "Plano de ferramenta sem expressão definida.", extra={"plan": plan}
-        )
-        return {
-            "status": STATUS_ERROR,
-            "resposta": "A ferramenta calculadora não recebeu uma expressão válida.",
-        }
-
-    runner = calculator_fn or (lambda expr: calculator.invoke({"expression": expr}))
-
-    try:
-        raw_result = runner(expression)
-        result = str(raw_result)
-        logger.info(
-            "Ferramenta executada com sucesso",
-            extra={"tool": tool_name, "expression": expression, "result": result},
-        )
-    except CalculatorError as exc:
-        logger.warning("Erro controlado da calculadora", extra={"error": str(exc)})
-        return {
-            "status": STATUS_ERROR,
-            "resposta": str(exc),
-        }
-    except Exception as exc:  # pragma: no cover - proteção adicional
-        logger.exception(
-            "Falha inesperada ao executar ferramenta",
-            extra={"expression": expression},
+            "ToolNode executado, mas nenhuma mensagem de ferramenta foi encontrada."
         )
         return {
             "status": STATUS_ERROR,
@@ -214,43 +227,68 @@ def execute_tools(
                 "Não consegui processar essa expressão matemática. "
                 "Revise a operação e tente novamente."
             ),
-            "tool_call": {
-                "name": tool_name,
-                "args": plan.get("args", {}),
-                "error": str(exc),
-            },
         }
 
-    tool_message = ToolMessage(
-        tool_call_id=plan.get("call_id") or f"{tool_name}-call",
-        name=tool_name,
-        content=result,
-    )
+    last_tool_message = tool_messages[-1]
+    content = _clean_content(last_tool_message)
+    plan: Optional[ToolPlan] = state.get("tool_plan")
+    tool_name = last_tool_message.name or (plan or {}).get("name") or _TOOL_NAME
+    expression = (plan or {}).get("args", {}).get("expression")
 
     metadata = dict(state.get("metadata", {}))
-    metadata["last_tool_result"] = result
+    metadata["last_tool_result"] = content
     metadata["last_tool_expression"] = expression
+    metadata["last_tool_name"] = tool_name
+    metadata["last_tool_call_id"] = getattr(last_tool_message, "tool_call_id", None)
 
-    return {
-        "messages": [tool_message],
-        "status": STATUS_VALIDATED,
-        "selected_tool": tool_name,
-        "tool_call": {
-            "name": tool_name,
-            "args": plan.get("args", {}),
-            "result": result,
-        },
-        "metadata": metadata,
-        "resposta": result,
+    run_record = {
+        "name": tool_name,
+        "args": (plan or {}).get("args", {}),
+        "result": content,
+        "call_id": getattr(last_tool_message, "tool_call_id", None),
     }
 
+    update: Dict[str, Any] = {
+        "metadata": metadata,
+        "selected_tool": tool_name,
+        "tool_plan": None,
+        "pending_tool_calls": [],
+        "tool_call": run_record,
+        "last_tool_run": run_record,
+    }
 
-def _build_conversation(state: GraphState) -> List[BaseMessage]:
+    if content.strip().lower().startswith("error"):
+        logger.warning(
+            "Ferramenta retornou erro controlado.",
+            extra={"tool": tool_name, "result": content},
+        )
+        update["status"] = STATUS_ERROR
+        update["resposta"] = (
+            "Não consegui processar essa expressão matemática. "
+            "Revise a operação e tente novamente."
+        )
+        update["tool_call"]["error"] = content
+    else:
+        logger.info(
+            "Ferramenta executada com sucesso",
+            extra={"tool": tool_name, "result": content},
+        )
+        update["status"] = STATUS_VALIDATED
+        update["resposta"] = content
+
+    return update
+
+
+def _build_conversation(
+    state: GraphState,
+    *,
+    include_system_prompt: bool = True,
+) -> List[BaseMessage]:
     """Compose the conversation to send to the model."""
 
     conversation: List[BaseMessage] = []
     system_prompt = state.get("metadata", {}).get("system_prompt")
-    if system_prompt:
+    if include_system_prompt and system_prompt:
         conversation.append(SystemMessage(content=system_prompt))
     conversation.extend(state.get("messages", []))
     return conversation
@@ -272,28 +310,37 @@ def invoke_model(
             "resposta": "Não consegui identificar a pergunta. Tente novamente com mais detalhes.",
         }
 
-    cfg = app_config or default_config
+    app_config or default_config
+    if llm is None:
+        logger.error("Modelo não fornecido ao invocar o LLM.")
+        return {
+            "status": STATUS_ERROR,
+            "resposta": (
+                "Modelo não configurado. Execute a inicialização do agente antes de enviar perguntas."
+            ),
+        }
+
     model = llm
 
-    if model is None:
-        try:
-            model = cfg.create_llm()
-        except ConfigurationError as exc:
-            logger.error(
-                "Configuração inválida ao instanciar LLM", extra={"error": str(exc)}
-            )
-            return {"status": STATUS_ERROR, "resposta": str(exc)}
-
-    conversation = _build_conversation(state)
+    metadata = dict(state.get("metadata", {}))
+    invoke_runs = metadata.get("invoke_model_runs", 0)
+    conversation = _build_conversation(
+        state,
+        include_system_prompt=invoke_runs == 0,
+    )
+    if invoke_runs >= 1:
+        conversation.append(HumanMessage(content="Continue gerando sua resposta."))
+    metadata["invoke_model_runs"] = invoke_runs + 1
 
     try:
         response = model.invoke(conversation)
+        print("Resposta do modelo:")
         print(response)
     except ConfigurationError as exc:
         logger.error(
             "Erro de configuração ao invocar modelo", extra={"error": str(exc)}
         )
-        return {"status": STATUS_ERROR, "resposta": str(exc)}
+        return {"status": STATUS_ERROR, "resposta": str(exc), "metadata": metadata}
     except Exception:  # pragma: no cover - trajetória de exceção logada
         logger.exception("Falha inesperada ao chamar o modelo")
         return {
@@ -302,22 +349,24 @@ def invoke_model(
                 "Encontrei um problema ao consultar o modelo agora. "
                 "Tente novamente em alguns instantes."
             ),
+            "metadata": metadata,
         }
 
     raw_content = _clean_content(response)
-    if raw_content:
-        logger.info("Resposta obtida do modelo.")
-        return {
-            "messages": [response],
-            "resposta": raw_content,
-            "status": STATUS_RESPONDED,
-        }
 
-    logger.info("Modelo retornou chamada de ferramenta ou conteúdo vazio.")
-    return {
+    update: Dict[str, Any] = {
         "messages": [response],
         "status": STATUS_RESPONDED,
+        "metadata": metadata,
     }
+
+    if raw_content:
+        logger.info("Resposta obtida do modelo.")
+        update["resposta"] = raw_content
+        return update
+
+    logger.info("Modelo retornou chamada de ferramenta ou conteúdo vazio.")
+    return update
 
 
 def finalize_response(
@@ -328,18 +377,17 @@ def finalize_response(
 ) -> Dict[str, Any]:
     """Ask the model to produce the final answer after tool execution."""
 
-    cfg = app_config or default_config
-    model = llm
+    app_config or default_config
+    if llm is None:
+        logger.error("Modelo não fornecido para gerar resposta final.")
+        return {
+            "status": STATUS_ERROR,
+            "resposta": (
+                "Modelo não configurado. Tente novamente após inicializar o agente."
+            ),
+        }
 
-    if model is None:
-        try:
-            model = cfg.create_llm()
-        except ConfigurationError as exc:
-            logger.error(
-                "Configuração inválida ao instanciar LLM na etapa final",
-                extra={"error": str(exc)},
-            )
-            return {"status": STATUS_ERROR, "resposta": str(exc)}
+    model = llm
 
     conversation = _build_conversation(state)
 
@@ -420,7 +468,7 @@ __all__ = [
     "STATUS_ERROR",
     "STATUS_RESPONDED",
     "STATUS_VALIDATED",
-    "execute_tools",
+    "handle_tool_result",
     "finalize_response",
     "format_response",
     "invoke_model",

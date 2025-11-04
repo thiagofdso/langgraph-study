@@ -76,7 +76,7 @@ description: "Task list for refatorar agente_tool"
 ### Implementation
 
 - [X] T020 [US2] Endurecer `calculator` em `agente_tool/utils/tools.py` usando `ast.parse` com sandbox e mensagens de erro amigáveis.
-- [X] T021 [US2] Implementar lógica de `plan_tool_usage` em `agente_tool/utils/nodes.py` populando `tool_plan` e status adequados.
+- [X] T021 [US2] Implementar lógica de `plan_tool_usage` em `agente_tool/utils/nodes.py` populando `tool_plans` e status adequados.
 - [X] T022 [US2] Implementar `execute_tools` em `agente_tool/utils/nodes.py` consumindo `calculator` e anexando mensagens ao estado.
 - [X] T023 [US2] Ajustar `invoke_model` em `agente_tool/utils/nodes.py` para usar `config.create_llm()` e tratar exceções.
 - [X] T024 [US2] Refinar `agente_tool/graph.py` para adicionar edges condicionais roteando entre ferramenta e LLM.

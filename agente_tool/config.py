@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Sequence
 
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -46,6 +46,12 @@ class AppConfig:
         """Return an in-memory checkpointer for LangGraph runs."""
 
         return MemorySaver()
+
+    def create_model_with_tools(self, tools: Sequence[Any]):
+        """Instantiate the chat model already bound to the provided tools."""
+
+        model = self.create_llm()
+        return model.bind_tools(tools)
 
 
 config = AppConfig()

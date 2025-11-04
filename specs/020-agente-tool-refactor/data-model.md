@@ -7,8 +7,9 @@
   - `metadata: dict[str, Any]` – dados auxiliares (ex.: pergunta original, prompt do sistema, tempo de início).
   - `status: str` – estado corrente do fluxo (`validated`, `responded`, `completed`, `error`).
   - `resposta: str` – texto final exibido ao usuário.
-  - `selected_tool: str` – nome da ferramenta planejada (quando houver).
-  - `tool_call: dict[str, Any]` – argumentos usados na última chamada de ferramenta.
+  - `selected_tools: list[str]` – nomes de todas as ferramentas solicitadas pelo modelo na rodada atual.
+  - `tool_plans: list[ToolPlan]` – planos de execução pendentes para cada tool call.
+  - `tool_calls: list[dict[str, Any]]` – resultados (ou erros) retornados pela execução das ferramentas.
   - `duration_seconds: float` – tempo total de execução (opcional, calculado no final).
 - **Validation Rules**:
   - `messages` deve conter ao menos a mensagem do usuário antes da validação.
@@ -26,6 +27,7 @@
 - **Fields**:
   - `name: str` – nome da ferramenta (ex.: `"calculator"`).
   - `args: dict[str, Any]` – argumentos originais solicitados pelo modelo.
+  - `call_id: str | None` – identificador emitido pelo modelo para correlacionar chamadas e respostas.
 - **Validation Rules**:
   - `name` deve corresponder a ferramenta registrada.
   - `args` só é propagado após validação de segurança (ex.: expressão matemática válida).

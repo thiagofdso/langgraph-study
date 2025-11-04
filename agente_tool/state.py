@@ -31,6 +31,8 @@ class GraphState(TypedDict, total=False):
     selected_tool: Optional[str]
     tool_plan: Optional["ToolPlan"]
     tool_call: Optional[Dict[str, Any]]
+    pending_tool_calls: Optional[List[Dict[str, Any]]]
+    last_tool_run: Optional[Dict[str, Any]]
     duration_seconds: float
 
 

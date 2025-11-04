@@ -14,12 +14,13 @@
    - **Output**: metadata com pergunta e hora de início; `status="validated"` ou `status="error"`.
 2. `plan_tool_usage`
    - **Input**: metadata e mensagens.
-  - **Output**: `tool_plan` com nome/args quando ferramenta for necessária; caso contrário `None`.
+   - **Output**: lista `tool_plans` com nome/args/call_id para cada ferramenta solicitada; caso contrário lista vazia.
 3. `execute_tools`
-   - **Precondition**: `tool_plan` definido.
-   - **Output**: mensagem com resultado da ferramenta e atualização do `status`.
+   - **Precondition**: `tool_plans` definido com ao menos uma entrada.
+   - **Output**: lista de `ToolMessage` para cada chamada, preenchendo `tool_calls` com resultados/erros.
 4. `invoke_model`
    - **Input**: mensagens completas após ferramentas.
+   - **Regras especiais**: somente a primeira invocação inclui o `system_prompt`; a partir da segunda, o histórico recebe uma nova mensagem do usuário `"Continue gerando sua resposta."` para orientar a continuação.
    - **Output**: nova mensagem do modelo com resposta textural.
 5. `format_response`
    - **Input**: estado final.

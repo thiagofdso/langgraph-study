@@ -8,7 +8,7 @@ suas responsabilidades. A meta é manter a nomenclatura consistente em futuros p
 | Nome do node | Responsabilidade | Implementações atuais |
 | --- | --- | --- |
 | `validate_input` | Validar a pergunta recebida, enriquecer `metadata` inicial e sinalizar o status de validação antes de outras etapas. | `agente_simples/graph.py#L15-L26`, `agente_memoria/graph.py#L21-L33` |
-| `invoke_model` | Acionar o LLM configurado usando os dados preparados e capturar a resposta ou erros amigáveis. | `agente_simples/graph.py#L18-L28`, `agente_memoria/graph.py#L24-L33` |
+| `invoke_model` | Acionar o LLM configurado usando o histórico acumulado e capturar resposta ou falhas controladas; agentes podem injetar prompts auxiliares conforme a rodada. | `agente_simples/graph.py#L18-L28`, `agente_memoria/graph.py#L24-L33`, `agente_tool/graph.py#L34-L44` |
 | `format_response` | Normalizar a saída final para o usuário, adicionando duração e ajustando status final. | `agente_simples/graph.py#L19-L29`, `agente_memoria/graph.py#L26-L33` |
 
 ## Padrões Específicos por Agente
@@ -35,6 +35,8 @@ suas responsabilidades. A meta é manter a nomenclatura consistente em futuros p
 
 | Nome do node | Função | Definição de utilitário |
 | --- | --- | --- |
-| `plan_tool_usage` | Lê o `tool_call` emitido pelo modelo e converte o primeiro pedido em um plano de execução para a calculadora. | `agente_tool/utils/nodes.py#L87-L132` |
-| `execute_tools` | Executa a ferramenta calculadora endurecida, registra o `ToolMessage` e atualiza metadados (`last_tool_result`, `tool_call`). | `agente_tool/utils/nodes.py#L135-L218` |
-| `finalize_response` | Reinvoca o modelo após a execução da ferramenta para gerar a resposta final em linguagem natural. | `agente_tool/utils/nodes.py#L232-L309` |
+| `validate_input` | Garante pergunta mínima, inicializa metadata com prompt do sistema e relógio de execução. | `agente_tool/utils/nodes.py#L97-L138` |
+| `plan_tool_usage` | Agrupa todos os `tool_calls` emitidos pelo modelo em `ToolPlan` (nome, argumentos, call_id) para execução sequencial. | `agente_tool/utils/nodes.py#L141-L183` |
+| `execute_tools` | Executa cada plano com a calculadora, gera `ToolMessage` pareada e registra resultados ou erros em `tool_calls`. | `agente_tool/utils/nodes.py#L185-L272` |
+| `invoke_model` | Envia o histórico ao LLM: na primeira rodada inclui `system_prompt`; das rodadas seguintes em diante acrescenta `HumanMessage("Continue gerando sua resposta.")` antes de invocar. | `agente_tool/utils/nodes.py#L290-L360` |
+| `format_response` | Formata a saída final, calcula duração e diferencia status de sucesso/erro. | `agente_tool/utils/nodes.py#L400-L439` |

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import types
 from typing import Callable, Dict, Iterable, List, Union
 
 import pytest
@@ -22,6 +23,11 @@ class DummyLLM:
         else:
             self._responses = list(responses)
         self._cursor = 0
+        self._tools: List[object] = []
+
+    def bind_tools(self, tools):  # pragma: no cover - comportamento simples de stub
+        self._tools = list(tools)
+        return self
 
     def invoke(
         self, messages: List[BaseMessage]
@@ -55,13 +61,32 @@ def thread_config(default_config: AppConfig) -> ThreadConfig:
 
 
 @pytest.fixture()
-def create_app(default_config: AppConfig) -> Callable[..., Callable[[Dict], Dict]]:
+def create_app(default_config: AppConfig, monkeypatch) -> Callable[..., Callable[[Dict], Dict]]:
     """Return a factory to build the LangGraph application with a stub LLM."""
 
+    from agente_tool import config as config_module
     from agente_tool.graph import create_app as build_app
 
     def _factory(llm: DummyLLM | None = None):
-        return build_app(config=default_config, llm=llm)
+        if llm is None:
+            llm_instance = DummyLLM("Stub response")
+        else:
+            llm_instance = llm
+
+        original_config = config_module.config
+        original_create = default_config.create_model_with_tools
+
+        def fake_create(self, tools):
+            return llm_instance.bind_tools(tools)
+
+        config_module.config = default_config
+        default_config.create_model_with_tools = types.MethodType(fake_create, default_config)
+
+        try:
+            return build_app()
+        finally:
+            default_config.create_model_with_tools = original_create  # type: ignore[assignment]
+            config_module.config = original_config
 
     return _factory
 

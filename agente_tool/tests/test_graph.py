@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from langchain_core.messages import AIMessage, ToolMessage
+from langgraph.prebuilt import ToolNode
 
 
 class ToolAwareLLM:
@@ -10,6 +11,11 @@ class ToolAwareLLM:
 
     def __init__(self) -> None:
         self._call_counter = 0
+        self._tools = []
+
+    def bind_tools(self, tools):
+        self._tools = list(tools)
+        return self
 
     def invoke(self, messages):  # type: ignore[override]
         self._call_counter += 1
@@ -41,7 +47,9 @@ def test_graph_flow_uses_calculator(create_app, initial_state, thread_config):
 
     result = app.invoke(initial_state, config=config)
 
+    assert isinstance(app.nodes["tools"].node.steps[0], ToolNode)
     assert result["status"] == "completed"
     assert result["tool_call"]["name"] == "calculator"
-    assert result["tool_call"]["result"] == "75"
+    assert result["tool_call"]["result"] == "75.0"
+    assert result["last_tool_run"]["result"] == "75.0"
     assert "Resposta do agente:" in result["resposta"]

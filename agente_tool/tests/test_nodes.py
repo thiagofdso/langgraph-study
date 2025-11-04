@@ -16,7 +16,7 @@ from agente_tool.utils import (
     STATUS_ERROR,
     STATUS_RESPONDED,
     STATUS_VALIDATED,
-    execute_tools,
+    handle_tool_result,
     finalize_response,
     format_response,
     invoke_model,
@@ -75,6 +75,8 @@ def test_plan_tool_usage_extracts_expression(initial_state):
     assert update["selected_tool"] == "calculator"
     assert update["tool_plan"]["args"]["expression"] == "300 / 4"
     assert update["tool_plan"]["call_id"] == "call_1"
+    assert update["pending_tool_calls"][0]["args"]["expression"] == "300 / 4"
+    assert update["pending_tool_calls"][0]["call_id"] == "call_1"
 
 
 def test_plan_tool_usage_handles_non_math_question():
@@ -89,28 +91,66 @@ def test_plan_tool_usage_handles_non_math_question():
 
     assert update["tool_plan"] is None
     assert update["selected_tool"] is None
+    assert update["pending_tool_calls"] == []
 
 
-def test_execute_tools_runs_calculator(initial_state):
-    plan_state = {
+def test_handle_tool_result_updates_state():
+    plan_state: GraphState = {
         "metadata": {"question": "quanto é 300 dividido por 4?", "system_prompt": ""},
         "tool_plan": {
             "name": "calculator",
             "args": {"expression": "300 / 4"},
             "call_id": "call_1",
         },
+        "messages": [
+            ToolMessage(tool_call_id="call_1", name="calculator", content="75.0")
+        ],
     }
 
-    update = execute_tools(plan_state, calculator_fn=lambda expr: "75")
+    update = handle_tool_result(plan_state)
 
     assert update["status"] == STATUS_VALIDATED
-    assert update["tool_call"]["result"] == "75"
-    assert isinstance(update["messages"][0], ToolMessage)
+    assert update["tool_call"]["result"] == "75.0"
+    assert update["metadata"]["last_tool_expression"] == "300 / 4"
+    assert update["pending_tool_calls"] == []
 
 
-def test_execute_tools_handles_missing_expression():
-    plan_state = {"tool_plan": {"name": "calculator", "args": {}, "call_id": "c1"}}
-    update = execute_tools(plan_state)
+def test_handle_tool_result_handles_error():
+    plan_state: GraphState = {
+        "metadata": {},
+        "tool_plan": {
+            "name": "calculator",
+            "args": {"expression": "1 / 0"},
+            "call_id": "call_2",
+        },
+        "messages": [
+            ToolMessage(
+                tool_call_id="call_2",
+                name="calculator",
+                content="Error: division by zero",
+            )
+        ],
+    }
+
+    update = handle_tool_result(plan_state)
+
+    assert update["status"] == STATUS_ERROR
+    assert "Revise a operação" in update["resposta"]
+    assert update["tool_call"]["error"].startswith("Error:")
+
+
+def test_handle_tool_result_without_tool_message():
+    plan_state: GraphState = {
+        "metadata": {},
+        "tool_plan": {
+            "name": "calculator",
+            "args": {"expression": "2 + 2"},
+            "call_id": "call_3",
+        },
+        "messages": [],
+    }
+
+    update = handle_tool_result(plan_state)
 
     assert update["status"] == STATUS_ERROR
 
@@ -209,11 +249,16 @@ def test_finalize_response_after_tool(initial_state):
     planned_state = _apply_update(state_after_model, plan_update)
     tool_state = _apply_update(
         planned_state,
-        execute_tools(planned_state, calculator_fn=lambda expr: "75"),
+        {
+            "messages": [
+                ToolMessage(tool_call_id="call_1", name="calculator", content="75.0")
+            ]
+        },
     )
+    handled_state = _apply_update(tool_state, handle_tool_result(tool_state))
 
     llm = DummyLLM("Resultado final: 75.")
-    update = finalize_response(tool_state, llm=llm)
+    update = finalize_response(handled_state, llm=llm)
 
     assert update["status"] == STATUS_RESPONDED
     assert "75" in update["resposta"]

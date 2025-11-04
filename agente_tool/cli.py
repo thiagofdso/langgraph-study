@@ -66,7 +66,7 @@ def _handle_run(question: str, thread_id: Optional[str], config: AppConfig) -> i
     if not _print_checks(checks):
         return 1
 
-    app = create_app(config=config)
+    app = create_app()
     thread = thread_id or config.default_thread_id
     payload = {"messages": [HumanMessage(content=stripped)]}
     runnable_config = {"configurable": {"thread_id": thread}}
