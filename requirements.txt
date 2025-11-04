@@ -2,7 +2,7 @@ asyncio
 google-generativeai
 langchain
 langchain-core
-langchain-google-genai
+langchain_google_genai
 langchain-mcp-adapters
 langchain-tavily
 langgraph
@@ -15,3 +15,4 @@ Pillow
 pytesseract
 langchain_community
 docling
+ruff

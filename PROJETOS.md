@@ -12,7 +12,7 @@ Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes
 
 ## agente_tool
 - **Objetivo funcional**: ensinar o agente a responder perguntas textuais e acionar uma calculadora quando detectar solicitação matemática.
-- **Abordagem técnica**: combina um nó LLM com um `ToolNode` do LangGraph; o Gemini é configurado com tool calling e, quando gera uma chamada de ferramenta, o fluxo direciona para a calculadora (implementada com `eval`) antes de voltar ao modelo.
+- **Abordagem técnica**: estrutura modular alinhada aos demais agentes (`config`, `state`, `utils/`, `graph`, `cli`, `tests`). O grafo executa `validate_input` → `invoke_model` → `plan_tool_usage` → `execute_tools` → `finalize_response` → `format_response`. O Gemini decide quando chamar a ferramenta via `tool_calls`; após a execução da calculadora endurecida (AST sandbox), o resultado é retornado ao modelo para produzir a resposta final em linguagem natural. O checkpointer `MemorySaver` preserva estado por `thread_id`, a CLI (`python -m agente_tool run`) executa pré-checagens de configuração e logs estruturados, e a suíte `pytest` cobre nodes (incluindo logging) e o fluxo completo com LLM stub.
 
 ## agente_web
 - **Objetivo funcional**: executar uma pesquisa na web sobre um tema fixo, sintetizar os achados e registrar um relatório local.

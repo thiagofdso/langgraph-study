@@ -30,3 +30,11 @@ suas responsabilidades. A meta é manter a nomenclatura consistente em futuros p
 | `invoke_model` | Invoca o LLM com o histórico completo, tratando exceções durante a chamada. | `agente_memoria/utils/nodes.py#L50-L69` |
 | `update_memory` | Persiste o estado atualizado da conversa (delegado ao checkpointer). | `agente_memoria/utils/nodes.py#L72-L80` |
 | `format_response` | Formata resposta final com duração e marca status concluído. | `agente_memoria/utils/nodes.py#L83-L96` |
+
+### agente_tool
+
+| Nome do node | Função | Definição de utilitário |
+| --- | --- | --- |
+| `plan_tool_usage` | Lê o `tool_call` emitido pelo modelo e converte o primeiro pedido em um plano de execução para a calculadora. | `agente_tool/utils/nodes.py#L87-L132` |
+| `execute_tools` | Executa a ferramenta calculadora endurecida, registra o `ToolMessage` e atualiza metadados (`last_tool_result`, `tool_call`). | `agente_tool/utils/nodes.py#L135-L218` |
+| `finalize_response` | Reinvoca o modelo após a execução da ferramenta para gerar a resposta final em linguagem natural. | `agente_tool/utils/nodes.py#L232-L309` |

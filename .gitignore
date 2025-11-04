@@ -39,3 +39,5 @@ agente_memoria/logs/*
 !agente_memoria/logs/.gitkeep
 agent.log
 *.pkcl
+agente_tool/logs/*
+!agente_tool/logs/.gitkeep
