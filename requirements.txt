@@ -5,3 +5,4 @@ langgraph==1.0.2
 anggraph-cli[inmem]
 pytest
 python-dotenv==1.2.1
+Pillow
