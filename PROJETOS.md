@@ -20,7 +20,7 @@ Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes
 
 ## agente_imagem
 - **Objetivo funcional**: transformar um mapa mental em imagem para uma estrutura em Markdown.
-- **Abordagem técnica**: em três nós valida a imagem com Pillow, converte para Base64 (utilitário próprio) e envia ao Gemini em formato multimodal; a resposta é analisada para produzir o Markdown final ou sinalizar erro.
+- **Abordagem técnica**: estrutura modular alinhada ao `agente_simples` (`config`, `state`, `graph`, `cli`, `utils/`, `tests`). O workflow LangGraph permanece sequencial nos nós `validate_input` → `prepare_image` → `invoke_model` → `format_response`, agora expostos via `create_app()` e reutilizados tanto pelo CLI (`python -m agente_imagem.cli`) quanto pelo `langgraph run agente-imagem`. Logs utilizam `get_logger` dedicado e os testes com mocks garantem paridade de comportamento após o refactor.
 
 ## agente_pdf
 - **Objetivo funcional**: responder a uma pergunta específica com base em um PDF técnico do OpenShift, exibindo a resposta em Markdown.

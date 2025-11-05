@@ -20,6 +20,8 @@ Auto-generated from all feature plans. Last updated: 2025-10-29
 - LangGraph InMemorySaver (padrão), com possibilidade futura de substituição por store persistente (019-refactor-memoria-agent)
 - Python 3.12.3 + langgraph, langchain-core, langchain_google_genai, python-dotenv, pytest (020-agente-tool-refactor)
 - In-memory (LangGraph MemorySaver checkpointer) (020-agente-tool-refactor)
+- Python 3.12.3 + langgraph, langchain-core, langchain_google_genai (Gemini 2.5), Pillow, python-dotenv (022-refactor-image-agent)
+- N/A (sem persistência; fluxo em memória) (022-refactor-image-agent)
 
 - Python 3.12.3 (repo virtualenv) + langgraph; langchain-core; google-generativeai; langchain-tavily (010-web-search-agent)
 
@@ -40,9 +42,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12.3 (repo virtualenv): Follow standard conventions
 
 ## Recent Changes
+- 022-refactor-image-agent: Added Python 3.12.3 + langgraph, langchain-core, langchain_google_genai (Gemini 2.5), Pillow, python-dotenv
 - 020-agente-tool-refactor: Added Python 3.12.3 + langgraph, langchain-core, langchain_google_genai, python-dotenv, pytest
 - 019-refactor-memoria-agent: Added Python 3.12.3 + langgraph, langchain-core, langchain_google_genai (ChatGoogleGenerativeAI), python-dotenv, typing_extensions, pydantic
-- 018-refactor-agente-simples: Added Python 3.12.3 + langgraph, langchain-core, google-generativeai (`ChatGoogleGenerativeAI`), python-dotenv
 
 
 <!-- MANUAL ADDITIONS START -->
