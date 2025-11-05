@@ -5,7 +5,10 @@ Projeto de estudo que cria um agente LangGraph simples. Ele inicializa um banco 
 ## Pré-requisitos
 - Python 3.12 (utilize o `venv/` já presente no repositório)
 - Dependências instaladas com `pip install -r requirements.txt`
-- Arquivo `.env` copiado de `agente_simples/.env` para `agente_banco_dados/.env`
+- Arquivo de variáveis de ambiente configurado:
+  1. Copie `agente_banco_dados/.env.example` para `agente_banco_dados/.env`.
+  2. Preencha `GEMINI_API_KEY` com uma chave válida do Gemini.
+  3. Ajuste `GEMINI_MODEL` ou `GEMINI_TEMPERATURE` apenas se necessário.
 
 ## Como executar
 1. Ative o ambiente virtual do repositório.
@@ -15,10 +18,11 @@ Projeto de estudo que cria um agente LangGraph simples. Ele inicializa um banco 
    ```
 3. A execução irá:
    - Criar (ou reutilizar) `agente_banco_dados/data/sales.db` com dados de exemplo.
-   - Executar o fluxo do LangGraph (via `agente_banco_dados/cli.py`) para consultar apenas o banco local.
-   - Exibir no terminal um relatório em Markdown destacando os produtos mais vendidos e os melhores vendedores.
+   - Construir métricas locais e enviar o contexto para o Gemini (`gemini-2.5-flash`) gerar insights.
+   - Exibir no terminal um relatório em Markdown contendo tabelas de produtos e vendedores, bem como a seção `## Insights gerados pela IA`.
+   - Informar o horário de geração (`generated_at`) e um resumo dos registros processados.
 
-> O agente não faz chamadas de rede nem consultas externas: todo o conteúdo é derivado do banco local.
+> A consulta aos dados permanece totalmente local. A única chamada externa é a invocação do modelo Gemini para produzir a narrativa.
 
 ### Executando com o LangGraph CLI
 Após registrar o grafo no `langgraph.json`, o agente pode ser invocado sem o script principal:
@@ -80,6 +84,13 @@ Um trecho típico do relatório:
 | Alice Alves  | São Paulo    | 36         | R$ 45650,00 |
 | Carla Costa  | Minas Gerais | 38         | R$ 44370,00 |
 | Daniela Dias | Paraná       | 28         | R$ 36390,00 |
+
+## Insights gerados pela IA
+1. Tendência: Produtos premium concentram maior receita (ex.: "Noise-Cancelling Headphones" com R$ 24920,00).
+2. Risco: Queda recente no volume do "Smart Monitor" pode afetar margem de monitores.
+3. Recomendação: Incentivar vendedores da região Sul com combos envolvendo "Conference Speaker".
+
+*Gerado em 2025-11-05T14:23:11.123456+00:00*
 ```
 
 A execução completa leva apenas alguns segundos e pode ser repetida quantas vezes quiser para estudo.

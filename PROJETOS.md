@@ -28,7 +28,7 @@ Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes
 
 ## agente_banco_dados
 - **Objetivo funcional**: gerar um relatório de vendas usando apenas dados de um banco SQLite local.
-- **Abordagem técnica**: estrutura modular alinhada ao padrão dos demais agentes (`state`, `utils/nodes`, `graph`, `cli`). O CLI prepara o banco com `initialize_database()` e executa o grafo `create_app()` composto pelos nodes `load_sales_metrics` e `render_sales_report`, que reutilizam `reporting.py` para consultas e formatação. O pacote exporta `app` e `create_app` para uso via LangGraph CLI, e testes dedicados garantem regressão com o baseline do relatório.
+- **Abordagem técnica**: estrutura modular alinhada ao padrão dos demais agentes (`state`, `utils/`, `graph`, `cli`). O grafo sequencial agora inclui `load_sales_metrics` → `generate_insights` → `render_sales_report`: o primeiro node obtém métricas do SQLite e registra metadata, o segundo chama o Gemini (`gemini-2.5-flash`) para produzir narrativa com três blocos e trata falhas com mensagens amigáveis, e o terceiro compõe o Markdown final com tabelas, insights ou fallback e timestamp. O CLI expõe o resumo do processamento (registros, latência do LLM, fonte) após imprimir o relatório, e a suíte de testes cobre geração, estrutura e cenários de erro da IA.
 
 ## agente_perguntas
 - **Objetivo funcional**: atuar como atendente FAQ, respondendo automaticamente quando a similaridade com o FAQ for alta ou escalando para humano quando não for.

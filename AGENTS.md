@@ -24,6 +24,7 @@ Auto-generated from all feature plans. Last updated: 2025-10-29
 - N/A (sem persistência; fluxo em memória) (022-refactor-image-agent)
 - Python 3.12.3 (venv do repositório) + langgraph, langchain-core, google-generativeai (`gemini-2.5-flash`), python-dotenv, sqlite3 (stdlib), tabulate/textwrap auxiliares conforme necessário (023-refactor-db-agent)
 - SQLite local (`agente_banco_dados/data/sales.db`) (023-refactor-db-agent)
+- Python 3.12.3 + langgraph, langchain-core, langchain_google_genai, python-dotenv, sqlite3 (stdlib), tabulate/textwrap (stdlib utilities) (001-gemini-sales-report)
 
 - Python 3.12.3 (repo virtualenv) + langgraph; langchain-core; google-generativeai; langchain-tavily (010-web-search-agent)
 
@@ -44,9 +45,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12.3 (repo virtualenv): Follow standard conventions
 
 ## Recent Changes
+- 001-gemini-sales-report: Added Python 3.12.3 + langgraph, langchain-core, langchain_google_genai, python-dotenv, sqlite3 (stdlib), tabulate/textwrap (stdlib utilities)
 - 023-refactor-db-agent: Added Python 3.12.3 (venv do repositório) + langgraph, langchain-core, google-generativeai (`gemini-2.5-flash`), python-dotenv, sqlite3 (stdlib), tabulate/textwrap auxiliares conforme necessário
 - 022-refactor-image-agent: Added Python 3.12.3 + langgraph, langchain-core, langchain_google_genai (Gemini 2.5), Pillow, python-dotenv
-- 020-agente-tool-refactor: Added Python 3.12.3 + langgraph, langchain-core, langchain_google_genai, python-dotenv, pytest
 
 
 <!-- MANUAL ADDITIONS START -->

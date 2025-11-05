@@ -20,6 +20,19 @@ def main() -> None:
     result = app.invoke({})
     print(result["report_markdown"])
 
+    metadata = result.get("metadata", {})
+    processed = metadata.get("processed_records", result.get("processed_records"))
+    latency = metadata.get("llm_latency_seconds", result.get("llm_latency_seconds"))
+    data_source = metadata.get("data_source")
+    print("\nResumo da execução:")
+    if processed is not None:
+        print(f"- Registros processados: {processed}")
+    if latency is not None:
+        print(f"- Latência da chamada ao LLM: {latency:.2f} s")
+    if data_source:
+        print(f"- Fonte dos dados: {data_source}")
+    print(f"- Gerado em: {metadata.get('generated_at', 'desconhecido')}")
+
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry point
     main()

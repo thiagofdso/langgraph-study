@@ -42,10 +42,19 @@ suas responsabilidades. A meta é manter a nomenclatura consistente em futuros p
 | `invoke_model` | Envia o histórico ao LLM: na primeira rodada inclui `system_prompt`; das rodadas seguintes em diante acrescenta `HumanMessage("Continue gerando sua resposta.")` antes de invocar. | `agente_tool/utils/nodes.py#L290-L360` |
 | `format_response` | Formata a saída final, calcula duração e diferencia status de sucesso/erro. | `agente_tool/utils/nodes.py#L400-L439` |
 
+### agente_imagem
+
+| Nome do node | Função | Definição de utilitário |
+| --- | --- | --- |
+| `validate_input` | Escolhe a imagem alvo (usa sample se não for fornecida), inicializa metadata com `started_at` e caminho da imagem. | `agente_imagem/utils/nodes.py#L24-L47` |
+| `prepare_image` | Verifica existência, valida formato e converte a imagem para base64, retornando erro amigável quando inválida. | `agente_imagem/utils/nodes.py#L50-L85` |
+| `invoke_model` | Aciona o Gemini com prompt multimodal (texto + imagem base64) e captura a resposta textual estruturada. | `agente_imagem/utils/nodes.py#L88-L124` |
+| `format_response` | Converte a resposta do LLM em markdown final, calcula duração e trata indicações de imagem inválida. | `agente_imagem/utils/nodes.py#L127-L159` |
+
 ### agente_banco_dados
 
 | Nome do node | Função | Definição de utilitário |
 | --- | --- | --- |
-| `load_sales_metrics` | Consulta produtos e vendedores no SQLite antes da renderização do relatório. | `agente_banco_dados/utils/nodes.py` |
-| `render_sales_report` | Converte métricas em Markdown final e adiciona metadata de geração. | `agente_banco_dados/utils/nodes.py` |
-
+| `load_sales_metrics` | Consulta produtos e vendedores no SQLite, registrando quantos registros serão usados e qual o banco fonte. | `agente_banco_dados/utils/nodes.py` |
+| `generate_insights` | Reúne métricas consolidadas, chama o Gemini para criar narrativa com três blocos e registra latência/erros da IA. | `agente_banco_dados/utils/nodes.py` |
+| `render_sales_report` | Converte métricas em Markdown, anexa a seção de insights (ou fallback amigável) e adiciona metadata final. | `agente_banco_dados/utils/nodes.py` |
