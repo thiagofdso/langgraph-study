@@ -1,6 +1,5 @@
-import pytest
-
 from agente_simples.state import GraphState
+from langchain_core.messages import HumanMessage
 
 
 class DummyLLM:
@@ -21,7 +20,7 @@ def test_validate_question_node_returns_metadata(monkeypatch):
     """Validation node must capture normalized question metadata and status."""
     from agente_simples.utils import nodes
     state: GraphState = {
-        "messages": [{"role": "user", "content": "Qual é a capital do Brasil?"}],
+        "messages": [HumanMessage(content="Qual é a capital do Brasil?")],
         "status": "pending",
     }
 
@@ -42,7 +41,7 @@ def test_invoke_model_node_returns_response(monkeypatch):
 
     state: GraphState = {
         "metadata": {"question": "Qual é a capital do Brasil?"},
-        "messages": [{"role": "user", "content": "Qual é a capital do Brasil?"}],
+        "messages": [HumanMessage(content="Qual é a capital do Brasil?")],
     }
 
     updated = nodes.invoke_model_node(state)

@@ -5,7 +5,8 @@
   "graphs": {
     "agente-simples": "agente_simples/graph.py:create_app",
     "agente-memoria": "agente_memoria/graph.py:create_app",
-    "agente-tool": "agente_tool/graph.py:create_app"
+    "agente-tool": "agente_tool/graph.py:create_app",
+    "agente-web": "agente_web/graph.py:create_app"
   },
   "env": ".env"
 }

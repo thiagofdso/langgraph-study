@@ -1,158 +1,84 @@
-"""Console entry point for a simple Tavily + LangGraph research demo."""
+"""CLI entry point for the agente_web workflow."""
 
 from __future__ import annotations
 
-import os
-from textwrap import dedent
-from typing import List, TypedDict
+import sys
+from pathlib import Path
+from typing import Optional
 
-from dotenv import load_dotenv
-from langchain_core.messages import HumanMessage, SystemMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_tavily import TavilySearch
-from langgraph.graph import END, START, StateGraph
+from langchain_core.messages import HumanMessage
 
-load_dotenv(dotenv_path="agente_web/.env")
+from agente_web.config import AppConfig, ConfigurationError, config
+from agente_web.graph import create_app
+from agente_web.state import GraphState
 
-QUESTION = "Como pesquisar arquivos no linux?"
-SYSTEM_PROMPT = (
-    "Você é um assistente de pesquisa. Resuma as descobertas em português, cite "
-    "as fontes pelo nome do site e destaque dicas práticas." \
-)
-SUMMARY_PROMPT = (
-    "Com base nas fontes listadas, crie um resumo de até 150 palavras com pelo "
-    "menos duas fontes e três dicas práticas quando possível." \
-)
-
-TAVILY_KEY = os.getenv("TAVILY_API_KEY", "").strip()
-GEMINI_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-
-if not TAVILY_KEY or not GEMINI_KEY:
-    raise SystemExit(
-        "Defina TAVILY_API_KEY e GEMINI_API_KEY no arquivo .env antes de executar o agente."
-    )
-
-os.environ.setdefault("GOOGLE_API_KEY", GEMINI_KEY)
-os.environ.setdefault("TAVILY_API_KEY", TAVILY_KEY)
-
-search_tool = TavilySearch(max_results=5, topic="general")
-model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", api_key=GEMINI_KEY)
+_REPORT_PATH = Path(__file__).resolve().parent / "smoke_test_output.txt"
 
 
-class AgentState(TypedDict):
-    question: str
-    results: List[dict]
-    summary: str
-    warnings: List[str]
+def run_graph(question: str, *, app_config: AppConfig) -> GraphState:
+    """Execute the compiled graph and return the final state."""
 
-
-def fetch_node(state: AgentState) -> AgentState:
-    """Consultar Tavily e armazenar resultados simples."""
-
-    try:
-        payload = search_tool.invoke({"query": state["question"]})
-        state["results"] = payload.get("results", [])
-        if not state["results"]:
-            state["warnings"].append("Nenhum resultado retornado pela Tavily.")
-        elif len(state["results"]) < 2:
-            state["warnings"].append("Poucos resultados encontrados.")
-    except Exception as exc:  # pragma: no cover - erro externo
-        state["warnings"].append(f"Erro na busca: {exc}")
-        state["results"] = []
-    return state
-
-
-def summarize_node(state: AgentState) -> AgentState:
-    """Gerar resumo curto usando Gemini."""
-
-    results = state["results"]
-    if not results:
-        state["summary"] = "Não foi possível gerar um resumo por falta de resultados."
-        return state
-
-    bullets = []
-    for item in results[:5]:
-        title = item.get("title", "Sem título")
-        url = item.get("url", "")
-        content = item.get("content") or item.get("text") or ""
-        bullets.append(f"Fonte: {title}\nURL: {url}\nResumo: {content}")
-
-    message = dedent(
-        f"""
-        {SUMMARY_PROMPT}
-
-        Pergunta original: {state['question']}
-
-        Fontes coletadas:\n""" + "\n\n".join(bullets)
-    ).strip()
-
-    response = model.invoke([
-        SystemMessage(content=SYSTEM_PROMPT),
-        HumanMessage(content=message),
-    ])
-
-    content = response.content if isinstance(response.content, str) else "".join(response.content)
-    state["summary"] = content.strip()
-    return state
-
-
-workflow = StateGraph(AgentState)
-workflow.add_node("buscar", fetch_node)
-workflow.add_node("resumir", summarize_node)
-workflow.add_edge(START, "buscar")
-workflow.add_edge("buscar", "resumir")
-workflow.add_edge("resumir", END)
-app = workflow.compile()
-
-
-def main() -> None:
-    initial: AgentState = {
-        "question": QUESTION,
-        "results": [],
-        "summary": "",
+    app = create_app()
+    initial_state: GraphState = {
+        "messages": [HumanMessage(content=question)],
+        "question": question,
         "warnings": [],
+        "search_results": [],
     }
-
-    final_state = app.invoke(initial)
-
-    print("Pergunta:", QUESTION)
-    print("\nResumo:\n", final_state["summary"] or "(vazio)")
-
-    if final_state["warnings"]:
-        print("\nAvisos:")
-        for note in final_state["warnings"]:
-            print(f"- {note}")
-
-    if final_state["results"]:
-        print("\nFontes:")
-        for item in final_state["results"][:5]:
-            print(f"* {item.get('title', 'Sem título')} -> {item.get('url', '')}")
-
-    _write_report(final_state)
+    invoke_config = {"configurable": {"thread_id": app_config.default_thread_id}}
+    return app.invoke(initial_state, invoke_config)
 
 
-def _write_report(state: AgentState) -> None:
+def render_output(state: GraphState, question: str) -> str:
+    """Render a user-friendly report string."""
+
     lines = [
-        "Pergunta:",
-        state["question"],
+        f"Pergunta: {question}",
         "",
         "Resumo:",
-        state["summary"] or "(vazio)",
+        state.get("summary") or "(vazio)",
         "",
         "Avisos:",
     ]
-    lines.extend(f"- {note}" for note in state["warnings"] or ["(nenhum)"])
+
+    warnings = state.get("warnings") or ["(nenhum)"]
+    lines.extend(f"- {warning}" for warning in warnings)
+
     lines.append("")
     lines.append("Fontes:")
-    if state["results"]:
-        for item in state["results"][:5]:
-            lines.append(f"* {item.get('title', 'Sem título')} -> {item.get('url', '')}")
+    results = state.get("search_results") or []
+    if results:
+        for item in results[:5]:
+            title = item.get("title", "Sem título")
+            url = item.get("url", "")
+            lines.append(f"* {title} -> {url}")
     else:
         lines.append("(nenhuma)")
 
-    with open("agente_web/smoke_test_output.txt", "w", encoding="utf-8") as file:
-        file.write("\n".join(lines))
+    return "\n".join(lines)
+
+
+def _write_report(report: str) -> None:
+    _REPORT_PATH.write_text(report, encoding="utf-8")
+
+
+def main(argv: Optional[list[str]] = None) -> int:
+    """Command-line interface for quick smoke tests."""
+
+    args = list(argv or sys.argv[1:])
+    question = " ".join(args).strip() or config.default_question
+
+    try:
+        final_state = run_graph(question, app_config=config)
+    except ConfigurationError as exc:
+        print(f"[agente_web] Configuração inválida: {exc}")
+        return 2
+
+    report = render_output(final_state, question)
+    print(report)
+    _write_report(report)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

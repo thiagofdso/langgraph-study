@@ -334,8 +334,6 @@ def invoke_model(
 
     try:
         response = model.invoke(conversation)
-        print("Resposta do modelo:")
-        print(response)
     except ConfigurationError as exc:
         logger.error(
             "Erro de configuração ao invocar modelo", extra={"error": str(exc)}
