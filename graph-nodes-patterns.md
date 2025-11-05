@@ -41,3 +41,11 @@ suas responsabilidades. A meta é manter a nomenclatura consistente em futuros p
 | `execute_tools` | Executa cada plano com a calculadora, gera `ToolMessage` pareada e registra resultados ou erros em `tool_calls`. | `agente_tool/utils/nodes.py#L185-L272` |
 | `invoke_model` | Envia o histórico ao LLM: na primeira rodada inclui `system_prompt`; das rodadas seguintes em diante acrescenta `HumanMessage("Continue gerando sua resposta.")` antes de invocar. | `agente_tool/utils/nodes.py#L290-L360` |
 | `format_response` | Formata a saída final, calcula duração e diferencia status de sucesso/erro. | `agente_tool/utils/nodes.py#L400-L439` |
+
+### agente_banco_dados
+
+| Nome do node | Função | Definição de utilitário |
+| --- | --- | --- |
+| `load_sales_metrics` | Consulta produtos e vendedores no SQLite antes da renderização do relatório. | `agente_banco_dados/utils/nodes.py` |
+| `render_sales_report` | Converte métricas em Markdown final e adiciona metadata de geração. | `agente_banco_dados/utils/nodes.py` |
+

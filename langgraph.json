@@ -7,7 +7,8 @@
     "agente-memoria": "agente_memoria/graph.py:create_app",
     "agente-tool": "agente_tool/graph.py:create_app",
     "agente-web": "agente_web/graph.py:create_app",
-    "agente-imagem": "agente_imagem/graph.py:create_app"
+    "agente-imagem": "agente_imagem/graph.py:create_app",
+    "agente-banco-dados": "agente_banco_dados/graph.py:app"
   },
   "env": ".env"
 }

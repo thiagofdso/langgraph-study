@@ -28,7 +28,7 @@ Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes
 
 ## agente_banco_dados
 - **Objetivo funcional**: gerar um relatório de vendas usando apenas dados de um banco SQLite local.
-- **Abordagem técnica**: inicializa o banco com `db_init`, consulta agregações no módulo `reporting` (SQL puro) e executa um grafo simples que coleta métricas e monta um relatório Markdown com tabelas formatadas manualmente.
+- **Abordagem técnica**: estrutura modular alinhada ao padrão dos demais agentes (`state`, `utils/nodes`, `graph`, `cli`). O CLI prepara o banco com `initialize_database()` e executa o grafo `create_app()` composto pelos nodes `load_sales_metrics` e `render_sales_report`, que reutilizam `reporting.py` para consultas e formatação. O pacote exporta `app` e `create_app` para uso via LangGraph CLI, e testes dedicados garantem regressão com o baseline do relatório.
 
 ## agente_perguntas
 - **Objetivo funcional**: atuar como atendente FAQ, respondendo automaticamente quando a similaridade com o FAQ for alta ou escalando para humano quando não for.

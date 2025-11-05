@@ -15,16 +15,47 @@ Projeto de estudo que cria um agente LangGraph simples. Ele inicializa um banco 
    ```
 3. A execução irá:
    - Criar (ou reutilizar) `agente_banco_dados/data/sales.db` com dados de exemplo.
-   - Executar o fluxo do LangGraph para consultar apenas o banco local.
+   - Executar o fluxo do LangGraph (via `agente_banco_dados/cli.py`) para consultar apenas o banco local.
    - Exibir no terminal um relatório em Markdown destacando os produtos mais vendidos e os melhores vendedores.
 
 > O agente não faz chamadas de rede nem consultas externas: todo o conteúdo é derivado do banco local.
 
+### Executando com o LangGraph CLI
+Após registrar o grafo no `langgraph.json`, o agente pode ser invocado sem o script principal:
+
+```bash
+langgraph run agente_banco_dados
+```
+
+### Uso programático do grafo
+Você também pode importar a função `create_app()` para reutilizar o grafo em outros scripts:
+
+```python
+from agente_banco_dados import create_app, initialize_database
+
+initialize_database()
+app = create_app()
+result = app.invoke({})
+print(result["report_markdown"])
+```
+
 ## Estrutura principal
+- `config.py`: constantes e ajustes de limites para o seed.
 - `db_init.py`: criação de esquema e inserção idempotente de dados.
 - `reporting.py`: consultas agregadas e formatação do relatório em Markdown.
-- `main.py`: ponto de entrada que inicializa o banco, executa o LangGraph e imprime o relatório.
+- `state.py`: contratos tipados compartilhados entre os nodes.
+- `utils/nodes.py`: nós do LangGraph responsáveis por buscar métricas e renderizar o relatório.
+- `graph.py`: definição e compilação do grafo (`create_app` e `app`).
+- `cli.py`: orquestrador da linha de comando.
+- `main.py`: entry point legacy que delega para `cli.main`.
+- `tests/test_agente_banco_dados.py`: teste que garante a emissão do relatório via `create_app`.
 - `data/`: diretório para o arquivo SQLite gerado.
+
+## Arquitetura modular
+- **Seed e configuração**: `db_init.py` e `config.py` continuam responsáveis por preparar e validar o banco local.
+- **Camada de domínio**: `state.py` define o contrato de dados (`ReportState`, `ProductSummary`, `SellerSummary`) consumido pelos nodes.
+- **Orquestração LangGraph**: `utils/nodes.py` encapsula as operações puras (`load_sales_metrics` e `render_sales_report`), enquanto `graph.py` monta o fluxo sequencial.
+- **Interfaces de execução**: `cli.py` prepara o ambiente e imprime o relatório; `create_app()` permite uso programático e integração com LangGraph CLI; `main.py` delega para o CLI mantendo compatibilidade com o comando legado.
 
 ## Reinicializando os dados
 Apague `agente_banco_dados/data/sales.db` e execute o comando novamente. O script recriará o banco com os dados de exemplo.
