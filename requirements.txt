@@ -2,7 +2,9 @@ langchain==1.0.1
 langchain-google-genai==3.0.1
 langchain-tavily==0.2.13
 langgraph==1.0.2
-anggraph-cli[inmem]
+langgraph-cli[inmem]
 pytest
 python-dotenv==1.2.1
 Pillow
+google-generativeai==0.7.2
+structlog==24.1.0

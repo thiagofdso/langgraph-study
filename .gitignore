@@ -41,3 +41,5 @@ agent.log
 *.pkcl
 agente_tool/logs/*
 !agente_tool/logs/.gitkeep
+agente_perguntas/logs/*
+!agente_perguntas/logs/.gitkeep

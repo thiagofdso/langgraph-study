@@ -32,7 +32,7 @@ Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes
 
 ## agente_perguntas
 - **Objetivo funcional**: atuar como atendente FAQ, respondendo automaticamente quando a similaridade com o FAQ for alta ou escalando para humano quando não for.
-- **Abordagem técnica**: mantém o FAQ embutido em prompt, calcula similaridade tokenizada, e roda um grafo com nó único que pode interromper via `interrupt`; após resposta humana, retoma o fluxo com `Command.resume`, registrando confiança e status.
+- **Abordagem técnica**: segue o padrão modular (`config.py`, `state.py`, `graph.py`, `cli.py`, `utils/`, `docs/`, `tests/`). O `StateGraph` possui o nó `evaluate` (similaridade → resposta automática → HITL). O CLI (`python -m agente_perguntas [--pergunta ...]`) valida configuração via `AppConfig`, registra logs estruturados (`structlog`) e retoma o fluxo com `resume_with_human_response`. A suíte `pytest agente_perguntas/tests -v` cobre utilitários de similaridade, grafo e CLI conforme as histórias US1-US3.
 
 ## agente_mcp
 - **Objetivo funcional**: integrar um agente LangGraph a servidores MCP (matemática e clima), demonstrando execução de ferramentas externas.

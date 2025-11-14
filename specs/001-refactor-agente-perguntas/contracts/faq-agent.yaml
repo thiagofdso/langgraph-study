@@ -1,0 +1,108 @@
+openapi: 3.1.0
+info:
+  title: Agente Perguntas CLI Contract
+  version: 0.2.0
+  description: |
+    Esquema conceitual para documentar as operações oferecidas pelo CLI (`python -m agente_perguntas`),
+    alinhando requisitos funcionais (execução do demo e perguntas individuais, com HITL quando necessário)
+    e o fluxo de logs estruturados (`structlog` gravado em AGENTE_PERGUNTAS_LOG_DIR).
+servers:
+  - url: http://localhost/cli
+    description: Ponto fictício usado apenas para documentação; a implementação real ocorre via CLI.
+paths:
+  /demo:
+    post:
+      summary: Executa o fluxo demonstrativo com perguntas padrão
+      operationId: runDemo
+      requestBody:
+        required: false
+      responses:
+        '200':
+          description: Execução concluída
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemoExecutionResult'
+  /questions:
+    post:
+      summary: Processa uma pergunta fornecida pelo operador
+      operationId: runSingleQuestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionRequest'
+      responses:
+        '200':
+          description: Resultado da interação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionResult'
+components:
+  schemas:
+    QuestionRequest:
+      type: object
+      required: [question]
+      properties:
+        question:
+          type: string
+          description: Pergunta enviada pelo operador.
+        threadId:
+          type: string
+          description: Identificador opcional de sessão para reutilizar checkpoints.
+    QuestionResult:
+      type: object
+      required: [question, answer, status, confidence]
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+        status:
+          type: string
+          enum: [respondido automaticamente, encaminhar para humano]
+        confidence:
+          type: number
+          format: float
+        notes:
+          type: string
+          description: Observações internas registradas pelo especialista ou pelo automatismo.
+        logPath:
+          type: string
+          description: Caminho absoluto do arquivo `agent.log` que contém a entrada JSON da interação.
+        interactionLog:
+          type: array
+          items:
+            $ref: '#/components/schemas/LogEntry'
+          description: Itens registrados no log de execução.
+    DemoExecutionResult:
+      type: object
+      required: [interactions]
+      properties:
+        interactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionResult'
+        summary:
+          type: string
+          description: Resumo textual da execução, usado para exibir no CLI.
+        logPath:
+          type: string
+          description: Diretório de logs utilizado durante a execução demo.
+    LogEntry:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        question:
+          type: string
+        status:
+          type: string
+          enum: [respondido automaticamente, encaminhar para humano]
+        durationMs:
+          type: integer
+        notes:
+          type: string

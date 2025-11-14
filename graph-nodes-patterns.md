@@ -58,3 +58,9 @@ suas responsabilidades. A meta é manter a nomenclatura consistente em futuros p
 | `load_sales_metrics` | Consulta produtos e vendedores no SQLite, registrando quantos registros serão usados e qual o banco fonte. | `agente_banco_dados/utils/nodes.py` |
 | `generate_insights` | Reúne métricas consolidadas, chama o Gemini para criar narrativa com três blocos e registra latência/erros da IA. | `agente_banco_dados/utils/nodes.py` |
 | `render_sales_report` | Converte métricas em Markdown, anexa a seção de insights (ou fallback amigável) e adiciona metadata final. | `agente_banco_dados/utils/nodes.py` |
+
+### agente_perguntas
+
+| Nome do node | Função | Definição de utilitário |
+| --- | --- | --- |
+| `evaluate` | Normaliza a pergunta, ranqueia o FAQ, decide entre resposta automática ou `interrupt`/HITL e aplica `resume_with_human_response` com notas humanas. | `agente_perguntas/utils/nodes.py#L43-L109` |
