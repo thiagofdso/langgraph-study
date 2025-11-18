@@ -9,7 +9,8 @@
     "agente-web": "agente_web/graph.py:create_app",
     "agente-imagem": "agente_imagem/graph.py:create_app",
     "agente-banco-dados": "agente_banco_dados/graph.py:app",
-    "agente-perguntas": "agente_perguntas/graph.py:create_app"
+    "agente-perguntas": "agente_perguntas/graph.py:create_app",
+    "agente-mcp": "agente_mcp/graph.py:create_graph"
   },
   "env": ".env"
 }
