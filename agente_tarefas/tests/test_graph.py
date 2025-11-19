@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
 from agente_tarefas.graph import create_graph
@@ -14,7 +14,7 @@ class DummyModel:
     def __post_init__(self) -> None:
         self._cursor = 0
 
-    def invoke(self, messages):  # pragma: no cover - behavior is deterministic
+    def invoke(self, messages):  # pragma: no cover - deterministic helper
         _ = messages
         response_text = self.responses[self._cursor]
         self._cursor = min(self._cursor + 1, len(self.responses) - 1)
@@ -22,8 +22,10 @@ class DummyModel:
 
 
 class DummyConfig:
-    def __init__(self):
-        self._model = DummyModel(["round1", "round2", "round3"])
+    def __init__(self, responses=None):
+        if responses is None:
+            responses = ['[{"op":"add","tasks":["Estudar"]},{"op":"del","tasks":["ler"]}]']
+        self._model = DummyModel(responses)
 
     def create_llm(self):
         return self._model
@@ -32,32 +34,30 @@ class DummyConfig:
         return InMemorySaver()
 
 
-def test_graph_processes_round1_payload():
+def test_graph_updates_tasks_and_summarizes():
     app = create_graph(DummyConfig())
-    state: AgentState = state_factory.build(messages=[SystemMessage(content="sys")])
-    state["round_payload"] = {
-        "round": "round1",
-        "user_input": "Estudar",
-        "raw_tasks": "Estudar",
-        "tasks_list": ["Estudar"],
-    }
+    state: AgentState = state_factory.build(messages=[HumanMessage(content="Adicione estudar e remova ler")])
+    state["tasks"] = ["Ler"]
 
     result = app.invoke(state, config={"configurable": {"thread_id": "test"}})
 
-    assert result["tasks"][0]["description"] == "Estudar"
-    assert result["messages"][-1].content == "round1"
-    assert result["timeline"][0]["round_id"] == "round1"
+    assert "Estudar" in result["tasks"]
+    assert all(task.casefold() != "ler" for task in result["tasks"])
+    final_message = result["messages"][-1]
+    assert isinstance(final_message, AIMessage)
+    assert "Tarefas removidas" in final_message.content
+    assert "- Estudar" in final_message.content
+    assert "Lista atual" in final_message.content
 
 
-def test_graph_processes_round2_payload():
-    app = create_graph(DummyConfig())
-    state: AgentState = state_factory.build(messages=[SystemMessage(content="sys")])
-    state["tasks"] = [
-        {"id": 1, "description": "Estudar", "status": "pending", "source_round": "round1"}
-    ]
-    state["round_payload"] = {"round": "round2", "user_input": "1", "selected_id": 1}
+def test_graph_handles_invalid_payload():
+    app = create_graph(DummyConfig(responses=["nao eh json"]))
+    state: AgentState = state_factory.build(messages=[HumanMessage(content="Remova tudo")])
+    state["tasks"] = ["Estudar"]
 
     result = app.invoke(state, config={"configurable": {"thread_id": "test"}})
 
-    assert result["completed_ids"] == [1]
-    assert result["tasks"][0]["status"] == "completed"
+    assert result["tasks"] == ["Estudar"]
+    final_message = result["messages"][-1]
+    assert isinstance(final_message, AIMessage)
+    assert "Nenhuma alteração foi aplicada" in final_message.content

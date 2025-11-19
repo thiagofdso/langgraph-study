@@ -1,23 +1,21 @@
-"""LangGraph nodes used by agente_tarefas."""
+"""LangGraph nodes for the dynamic task agent."""
 from __future__ import annotations
 
-from copy import deepcopy
-from typing import Callable, Dict, List
+import json
+from typing import Dict, List, Sequence
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 
 from agente_tarefas.config import AppConfig, settings
-from agente_tarefas.state import AgentState
-from agente_tarefas.utils.prompts import (
-    SYSTEM_PROMPT,
-    build_round1_prompt,
-    build_round2_prompt,
-    build_round3_prompt,
+from agente_tarefas.state import AgentState, OperationError, OperationReport
+from agente_tarefas.utils.logging import build_operation_log
+from agente_tarefas.utils.operations import (
+    Operation,
+    OperationValidationError,
+    normalize_task_name,
+    validate_operations,
 )
-from agente_tarefas.utils.rounds import build_initial_tasks, collect_new_tasks, select_completed_task, split_tasks
-from agente_tarefas.utils.timeline import append_entry
-
-NodeCallable = Callable[[AgentState], Dict[str, object]]
+from agente_tarefas.utils.prompts import SYSTEM_PROMPT, build_operations_prompt
 
 
 def resolve_app_config(config: AppConfig | None = None) -> AppConfig:
@@ -28,165 +26,232 @@ def resolve_app_config(config: AppConfig | None = None) -> AppConfig:
     return settings
 
 
-def _with_system_prompt(messages: List[BaseMessage]) -> List[BaseMessage]:
-    if messages:
+def _ensure_system_prompt(messages: Sequence[BaseMessage]) -> List[BaseMessage]:
+    if messages and isinstance(messages[0], SystemMessage):
         return list(messages)
-    return [SystemMessage(content=SYSTEM_PROMPT)]
+    return [SystemMessage(content=SYSTEM_PROMPT), *messages]
 
 
-def _invoke_llm(messages: List[BaseMessage], config: AppConfig) -> AIMessage:
-    model = config.create_llm()
-    return model.invoke(messages)
+def _last_user_message(messages: Sequence[BaseMessage]) -> str:
+    for message in reversed(messages):
+        if isinstance(message, HumanMessage):
+            return message.content
+    return ""
 
 
-def _append_timeline_entry(
-    timeline: List[dict],
-    *,
-    round_id: str,
-    user_input: str,
-    agent_response: str,
-    notes: str | None = None,
-) -> List[dict]:
-    timeline_copy = list(timeline)
-    append_entry(
-        timeline_copy,
-        round_id=round_id,  # type: ignore[arg-type]
-        user_input=user_input,
-        agent_response=agent_response,
-        notes=notes,
-    )
-    return timeline_copy
+def _strip_json_block(content: str) -> str:
+    text = content.strip()
+    if text.startswith("```"):
+        lines = [line for line in text.splitlines() if not line.strip().startswith("```")]
+        text = "\n".join(lines).strip()
+    return text
 
 
-def build_prepare_round1_node(config: AppConfig | None = None) -> NodeCallable:
+def _build_error(code: str, message: str, details: str | None = None) -> OperationError:
+    error: OperationError = {"code": code, "message": message}
+    if details:
+        error["details"] = details
+    return error
+
+
+def build_parse_operations_node(config: AppConfig | None = None):
+    """Create a node that asks the LLM for structured operations."""
+
     app_config = resolve_app_config(config)
 
     def _node(state: AgentState) -> Dict[str, object]:
-        payload = state.get("round_payload", {})
-        if payload.get("round") != "round1":
+        current_messages = state.get("messages", [])
+        user_message = _last_user_message(current_messages)
+        if not user_message:
+            # Nothing to do if no new message was supplied.
             return {}
 
-        raw_tasks = payload.get("raw_tasks") or ""
-        parsed_tasks = payload.get("tasks_list") or split_tasks(raw_tasks)
-        tasks = build_initial_tasks(parsed_tasks)
+        messages = _ensure_system_prompt(current_messages)
+        prompt = build_operations_prompt(state.get("tasks", []), user_message)
 
-        messages = _with_system_prompt(state.get("messages", []))
-        messages.append(HumanMessage(content=build_round1_prompt(tasks)))
-        response = _invoke_llm(messages, app_config)
-        messages.append(response)
+        prompt_message = HumanMessage(content=prompt)
+        model = app_config.create_llm()
+        response = model.invoke([*messages, prompt_message])
+        messages = [*messages, prompt_message, response]
 
-        timeline = _append_timeline_entry(
-            state.get("timeline", []),
-            round_id="round1",
-            user_input=payload.get("user_input", raw_tasks),
-            agent_response=response.content,
-        )
-
-        return {
-            "tasks": tasks,
-            "completed_ids": [],
-            "duplicate_notes": [],
-            "messages": messages,
-            "timeline": timeline,
-            "round_payload": {},
-        }
-
-    return _node
-
-
-def build_complete_task_node(config: AppConfig | None = None) -> NodeCallable:
-    app_config = resolve_app_config(config)
-
-    def _node(state: AgentState) -> Dict[str, object]:
-        payload = state.get("round_payload", {})
-        if payload.get("round") != "round2":
-            return {}
-
-        selection_raw = str(payload.get("selected_id") or payload.get("user_input", ""))
-        tasks = [dict(task) for task in state.get("tasks", [])]
-        completed_ids = list(state.get("completed_ids", []))
-        selection = select_completed_task(selection_raw, tasks, completed_ids)
-
-        messages = _with_system_prompt(state.get("messages", []))
-        messages.append(HumanMessage(content=build_round2_prompt(tasks, selection)))
-        response = _invoke_llm(messages, app_config)
-        messages.append(response)
-
-        timeline = _append_timeline_entry(
-            state.get("timeline", []),
-            round_id="round2",
-            user_input=payload.get("user_input", selection_raw),
-            agent_response=response.content,
-        )
-
-        return {
-            "tasks": tasks,
-            "completed_ids": completed_ids,
-            "messages": messages,
-            "timeline": timeline,
-            "round_payload": {},
-        }
-
-    return _node
-
-
-def build_append_tasks_node(config: AppConfig | None = None) -> NodeCallable:
-    app_config = resolve_app_config(config)
-
-    def _node(state: AgentState) -> Dict[str, object]:
-        payload = state.get("round_payload", {})
-        if payload.get("round") != "round3":
-            return {}
-
-        entries: List[str] = payload.get("entries", [])
-        duplicate_decisions = payload.get("duplicate_decisions", [])
-        decision_map = {item["task"].casefold(): item["keep"] for item in duplicate_decisions}
-
-        def _confirm_keep(item: str) -> bool:
-            return decision_map.get(item.casefold(), True)
-
-        tasks = [dict(task) for task in state.get("tasks", [])]
-        duplicate_notes = list(state.get("duplicate_notes", []))
-        previous_notes_len = len(duplicate_notes)
-
-        if entries:
-            collect_new_tasks(
-                entries,
-                tasks,
-                duplicate_notes,
-                confirm_keep_fn=_confirm_keep,
+        cleaned = _strip_json_block(response.content)
+        try:
+            payload = json.loads(cleaned)
+        except json.JSONDecodeError as exc:
+            error = _build_error(
+                "invalid-json",
+                "Não consegui interpretar as operações em JSON. Revise o formato e tente novamente.",
+                details=str(exc),
             )
+            return {"messages": messages, "operations": [], "error": error}
 
-        messages = _with_system_prompt(state.get("messages", []))
-        messages.append(HumanMessage(content=build_round3_prompt(tasks, duplicate_notes)))
-        response = _invoke_llm(messages, app_config)
-        messages.append(response)
+        try:
+            operations = validate_operations(payload)
+        except OperationValidationError as exc:
+            error = _build_error(exc.code, exc.message, exc.details)
+            return {"messages": messages, "operations": [], "error": error}
 
-        new_notes = duplicate_notes[previous_notes_len:]
-        notes_str = "; ".join(new_notes) if new_notes else None
-        timeline = _append_timeline_entry(
-            state.get("timeline", []),
-            round_id="round3",
-            user_input=payload.get("user_input", ""),
-            agent_response=response.content,
-            notes=notes_str,
-        )
+        return {"messages": messages, "operations": operations, "error": {}}
 
+    return _node
+
+
+def build_apply_operations_node():
+    """Create a node that mutates the in-memory task list."""
+
+    def _node(state: AgentState) -> Dict[str, object]:
+        tasks = list(state.get("tasks", []))
+        operations = state.get("operations", [])
+        error = state.get("error", {})
+
+        has_listing = any(op.get("op") == "listar" for op in operations)
+        listing_only = bool(operations) and all(op.get("op") == "listar" for op in operations)
+        report: OperationReport = {
+            "added": [],
+            "removed": [],
+            "missing": [],
+            "requested_listing": has_listing,
+            "listing_only": listing_only,
+        }
+
+        if error and error.get("code"):
+            # Preserve error information for the summarizer.
+            report["log_entry"] = build_operation_log(report, error)
+            return {
+                "tasks": tasks,
+                "operation_report": report,
+            }
+
+        if listing_only:
+            report["log_entry"] = build_operation_log(report, {})
+            return {
+                "tasks": tasks,
+                "operations": [],
+                "operation_report": report,
+                "error": {},
+            }
+
+        for operation in operations:
+            op_type = operation["op"]
+            if op_type == "listar":
+                continue
+            if op_type == "add":
+                _apply_add(operation, tasks, report)
+            elif op_type == "del":
+                _apply_del(operation, tasks, report)
+
+        report["log_entry"] = build_operation_log(report, {})
         return {
             "tasks": tasks,
-            "duplicate_notes": duplicate_notes,
-            "messages": messages,
-            "timeline": timeline,
-            "round_payload": {},
+            "operations": [],
+            "operation_report": report,
+            "error": {},
         }
 
     return _node
+
+
+def _apply_add(operation: Operation, tasks: List[str], report: OperationReport) -> None:
+    entries = operation.get("tasks", [])
+    existing = {item.casefold() for item in tasks}
+    for entry in entries:
+        normalized = normalize_task_name(entry)
+        key = normalized.casefold()
+        if key in existing:
+            continue
+        tasks.append(normalized)
+        existing.add(key)
+        report.setdefault("added", []).append(normalized)
+
+
+def _apply_del(operation: Operation, tasks: List[str], report: OperationReport) -> None:
+    entries = operation.get("tasks", [])
+    remaining: List[str] = []
+    removed: List[str] = report.setdefault("removed", [])
+    missing: List[str] = report.setdefault("missing", [])
+
+    targets = {normalize_task_name(item).casefold(): normalize_task_name(item) for item in entries}
+    seen_keys: set[str] = set()
+
+    for task in tasks:
+        key = task.casefold()
+        if key in targets and key not in seen_keys:
+            removed.append(task)
+            seen_keys.add(key)
+            continue
+        remaining.append(task)
+
+    for target_key, rendered in targets.items():
+        if target_key not in seen_keys:
+            missing.append(rendered)
+
+    tasks[:] = remaining
+
+
+def build_summarize_node():
+    """Create a node that summarizes the outcome to the user."""
+
+    def _node(state: AgentState) -> Dict[str, object]:
+        messages = _ensure_system_prompt(state.get("messages", []))
+        tasks = state.get("tasks", [])
+        report = state.get("operation_report", {})
+        error = state.get("error", {})
+
+        summary = _build_summary_text(tasks, report, error)
+        messages.append(AIMessage(content=summary))
+
+        return {
+            "messages": messages,
+            "operations": [],
+            "operation_report": {},
+            "error": {},
+        }
+
+    return _node
+
+
+def _build_summary_text(tasks: Sequence[str], report: OperationReport, error: OperationError) -> str:
+    header_lines: List[str] = []
+    if error and error.get("code"):
+        header_lines.append("Não consegui interpretar suas instruções sem ambiguidade.")
+        header_lines.append(f"Motivo: {error.get('message', 'formato inválido')}.")
+        details = error.get("details")
+        if details:
+            header_lines.append(f"Detalhes técnicos: {details}")
+        header_lines.append(
+            "Use o formato JSON exatamente como: "
+            '[{"op":"add","tasks":["estudar"]},{"op":"del","tasks":["ler"]}] ou [{"op":"listar"}].'
+        )
+        header_lines.append("Nenhuma alteração foi aplicada; abaixo está a lista atual.")
+    else:
+        additions = report.get("added") or []
+        deletions = report.get("removed") or []
+        missing = report.get("missing") or []
+        requested_listing = report.get("requested_listing")
+        listing_only = report.get("listing_only")
+
+        if listing_only:
+            header_lines.append("Você solicitou apenas listar as tarefas; nenhuma alteração foi aplicada.")
+        if additions:
+            header_lines.append(f"Tarefas adicionadas: {', '.join(additions)}.")
+        if deletions:
+            header_lines.append(f"Tarefas removidas: {', '.join(deletions)}.")
+        if missing:
+            header_lines.append(f"Não encontrei: {', '.join(missing)} (já estavam ausentes).")
+        if not additions and not deletions and requested_listing and not missing and not listing_only:
+            header_lines.append("Você solicitou apenas listar as tarefas; nada foi alterado.")
+        if not header_lines:
+            header_lines.append("Nenhuma alteração foi aplicada, mas sua solicitação foi registrada.")
+
+    rendered_tasks = "\n".join(f"- {task}" for task in tasks) if tasks else "- (nenhuma tarefa registrada)"
+    header_lines.append("\nLista atual:")
+    header_lines.append(rendered_tasks)
+    return "\n".join(header_lines)
 
 
 __all__ = [
-    "build_prepare_round1_node",
-    "build_complete_task_node",
-    "build_append_tasks_node",
+    "build_parse_operations_node",
+    "build_apply_operations_node",
+    "build_summarize_node",
     "resolve_app_config",
-    "NodeCallable",
 ]

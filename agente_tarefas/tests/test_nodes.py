@@ -1,4 +1,4 @@
-"""Unit tests for agente_tarefas graph nodes."""
+"""Unit tests for dynamic agente_tarefas nodes."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,10 +9,9 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from agente_tarefas.state import AgentState, state_factory
 from agente_tarefas.utils.nodes import (
-    build_append_tasks_node,
-    build_complete_task_node,
-    build_prepare_round1_node,
-    resolve_app_config,
+    build_apply_operations_node,
+    build_parse_operations_node,
+    build_summarize_node,
 )
 
 
@@ -35,82 +34,124 @@ class _FakeConfig:
 
         return _DummyLLM()
 
-    def create_checkpointer(self):  # pragma: no cover - not used in unit tests
-        class _DummyCheckpointer:
-            def put(self, *args, **kwargs):
-                return None
-
-        return _DummyCheckpointer()
-
-
-@pytest.fixture()
-def fake_config() -> _FakeConfig:
-    return _FakeConfig(responses=["round1", "round2", "round3"])
+    def create_checkpointer(self):  # pragma: no cover - not used in node tests
+        raise NotImplementedError
 
 
 @pytest.fixture()
 def base_state() -> AgentState:
-    return state_factory.build(messages=[SystemMessage(content="sys")])
+    return state_factory.build(messages=[HumanMessage(content="Adicione estudar e remover correr")])
 
 
-def test_prepare_round1_node_populates_tasks(base_state: AgentState, fake_config: _FakeConfig):
-    node = build_prepare_round1_node(fake_config)
-    base_state["round_payload"] = {
-        "round": "round1",
-        "user_input": "Estudar, Lavar louça",
-        "raw_tasks": "Estudar, Lavar louça",
-        "tasks_list": ["Estudar", "Lavar louça"],
-    }
+def test_parse_operations_node_extracts_operations(base_state: AgentState):
+    fake_config = _FakeConfig(
+        responses=[
+            """```json
+            [
+              {"op":"add","tasks":["estudar","fazer compras"]},
+              {"op":"del","tasks":["correr"]},
+              {"op":"listar"}
+            ]
+            ```"""
+        ]
+    )
+    node = build_parse_operations_node(fake_config)
 
     result = node(base_state)
 
-    assert [task["description"] for task in result["tasks"]] == ["Estudar", "Lavar louça"]
-    assert result["completed_ids"] == []
-    assert result["duplicate_notes"] == []
-    assert result["round_payload"] == {}
-    assert result["timeline"][0]["round_id"] == "round1"
-    assert result["messages"][-1].content == "round1"
+    assert result["error"] == {}
+    assert result["operations"][0]["op"] == "add"
+    assert result["operations"][1]["op"] == "del"
+    assert result["operations"][2]["op"] == "listar"
 
 
-def test_complete_task_node_updates_status(fake_config: _FakeConfig):
+def test_parse_operations_node_handles_invalid_json(base_state: AgentState):
+    fake_config = _FakeConfig(responses=["isso não é json"])
+    node = build_parse_operations_node(fake_config)
+
+    result = node(base_state)
+
+    assert result["operations"] == []
+    assert result["error"]["code"] == "invalid-json"
+
+
+def test_parse_operations_node_reports_missing_tasks(base_state: AgentState):
+    fake_config = _FakeConfig(
+        responses=[
+            '[{"op":"add"}]'
+        ]
+    )
+    node = build_parse_operations_node(fake_config)
+
+    result = node(base_state)
+
+    assert result["error"]["code"] == "missing-tasks"
+    assert result["operations"] == []
+
+
+def test_apply_operations_executes_add_and_delete():
     state: AgentState = state_factory.build(messages=[SystemMessage(content="sys")])
-    state["messages"].extend([
-        HumanMessage(content="R1"),
-        AIMessage(content="Ok"),
-    ])
-    state["tasks"] = [
-        {"id": 1, "description": "Estudar", "status": "pending", "source_round": "round1"},
-        {"id": 2, "description": "Correr", "status": "pending", "source_round": "round1"},
+    state["tasks"] = ["Ler livro"]
+    state["operations"] = [
+        {"op": "add", "tasks": ["Estudar", "Fazer compras"]},
+        {"op": "del", "tasks": ["ler livro", "Passear"]},
     ]
-    state["round_payload"] = {"round": "round2", "user_input": "1", "selected_id": 1}
+    state["error"] = {}
 
-    node = build_complete_task_node(fake_config)
+    node = build_apply_operations_node()
     result = node(state)
 
-    assert result["completed_ids"] == [1]
-    assert result["tasks"][0]["status"] == "completed"
-    assert result["messages"][-1].content == "round1"
-    assert result["timeline"][-1]["user_input"] == "1"
+    assert sorted(result["tasks"]) == ["Estudar", "Fazer compras"]
+    assert "Ler livro" in result["operation_report"]["removed"]
+    assert "Passear" in result["operation_report"]["missing"]
 
 
-def test_append_tasks_node_respects_duplicate_decisions(fake_config: _FakeConfig):
-    state: AgentState = state_factory.build(messages=[SystemMessage(content="sys")])
-    state["tasks"] = [
-        {"id": 1, "description": "Estudar", "status": "pending", "source_round": "round1"},
-    ]
-    state["duplicate_notes"] = []
-    state["round_payload"] = {
-        "round": "round3",
-        "user_input": "Passear, Estudar",
-        "entries": ["Passear", "Estudar"],
-        "duplicate_decisions": [{"task": "Estudar", "keep": False}],
+def test_summarize_node_reports_errors():
+    state: AgentState = state_factory.build(messages=[HumanMessage(content="Liste as tarefas")])
+    state["tasks"] = ["Estudar"]
+    state["operation_report"] = {"requested_listing": True}
+    state["error"] = {"code": "invalid-json", "message": "json ruim"}
+
+    node = build_summarize_node()
+    result = node(state)
+
+    final_message = result["messages"][-1]
+    assert isinstance(final_message, AIMessage)
+    assert "json" in final_message.content.lower()
+    assert "- Estudar" in final_message.content
+
+
+def test_listar_only_flow_leaves_state_intact():
+    state: AgentState = state_factory.build(messages=[HumanMessage(content="Liste as tarefas")])
+    state["tasks"] = ["Estudar", "Ler"]
+    state["operations"] = [{"op": "listar"}]
+    state["error"] = {}
+
+    apply_node = build_apply_operations_node()
+    updated_state = apply_node(state)
+    assert updated_state["tasks"] == ["Estudar", "Ler"]
+    assert updated_state["operation_report"]["listing_only"] is True
+
+    summarize = build_summarize_node()
+    summary_state = {
+        **state,
+        **updated_state,
+        "messages": state["messages"],
     }
+    final_state = summarize(summary_state)
+    final_message = final_state["messages"][-1].content
+    assert "apenas listar" in final_message.lower()
+    assert "- Estudar" in final_message
 
-    node = build_append_tasks_node(fake_config)
+
+def test_apply_operations_skips_when_error_present():
+    state: AgentState = state_factory.build(messages=[HumanMessage(content="remova tudo")])
+    state["tasks"] = ["Estudar"]
+    state["operations"] = [{"op": "del", "tasks": ["Estudar"]}]
+    state["error"] = {"code": "invalid-json", "message": "bad"}
+
+    node = build_apply_operations_node()
     result = node(state)
 
-    assert [task["description"] for task in result["tasks"]] == ["Estudar", "Passear"]
-    # duplicate decision false -> note registered, but task not duplicated
-    assert "foi ignorada" in result["duplicate_notes"][0]
-    assert result["messages"][-1].content == "round1"
-    assert result["timeline"][-1]["round_id"] == "round3"
+    assert result["tasks"] == ["Estudar"]
+    assert result["operation_report"]["removed"] == []

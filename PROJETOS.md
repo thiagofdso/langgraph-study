@@ -39,8 +39,8 @@ Visão geral dos projetos localizados nos diretórios `agente_*`, `multi_agentes
 - **Abordagem técnica**: utiliza `MultiServerMCPClient` para descobrir ferramentas, vincula o Gemini com `bind_tools` e executa um grafo assíncrono; o nó `BasicToolNode` trata `tool_calls` emitindo `ToolMessage`, enquanto o fluxo é consumido com `graph.astream` para exibir respostas parciais.
 
 ## agente_tarefas
-- **Objetivo funcional**: conduzir o usuário em três rodadas no terminal para registrar tarefas, concluir uma atividade e adicionar novas antes do encerramento.
-- **Abordagem técnica**: organiza prompts síncronos no CLI, gera mensagens de contexto específicas para cada rodada e usa `StateGraph` com `InMemorySaver` para persistir tarefas, itens concluídos e timeline; o Gemini produz confirmações e o resumo final em português.
+- **Objetivo funcional**: receber instruções livres via LangGraph CLI (ex.: “adicione estudar e remover compras”), convertê-las em operações JSON e devolver imediatamente a lista de tarefas atualizada ou o resultado da listagem.
+- **Abordagem técnica**: `StateGraph` enxuto com nós `parse_operations`, `apply_operations` e `summarize_response`, estado em memória e prompts que forçam `{ "op": "listar" | "add" | "del" }`; toda a execução ocorre somente através do comando `venv/bin/langgraph dev --config langgraph.json --host 0.0.0.0`, enquanto o antigo CLI apenas exibe uma mensagem de redirecionamento.
 
 ## multi_agentes_orquestracao
 - **Objetivo funcional**: exemplificar um orquestrador que planeja um relatório e coordena múltiplos trabalhadores para escrever seções em paralelo.

@@ -1,4 +1,4 @@
-"""Backward-compatible entry point for running the CLI."""
+"""Backward-compatible entry point that now only warns users."""
 from agente_tarefas.cli import main
 
 __all__ = ["main"]

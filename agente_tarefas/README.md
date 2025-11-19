@@ -1,45 +1,55 @@
 # agente_tarefas
 
-Agente CLI em três rodadas construído com LangGraph seguindo o template v2.3. O fluxo mantém o mesmo comportamento anterior:
-
-1. **Rodada 1** – coleta tarefas iniciais e confirma recebimento.
-2. **Rodada 2** – usuário marca uma tarefa como concluída.
-3. **Rodada 3** – adiciona novas tarefas opcionais e recebe o resumo final.
+Agente de tarefas totalmente orientado ao **LangGraph CLI**. O fluxo não possui mais `python -m` nem `cli.py` interativo: toda a experiência acontece em um único turno do grafo, que interpreta a mensagem do usuário, mapeia operações JSON e devolve a lista atualizada ao final.
 
 ## Estrutura
 
 ```
 agente_tarefas/
-├── cli.py              # fluxo interativo
-├── config.py           # carregamento do .env e fábrica de LLM/checkpointer
-├── graph.py            # construção do StateGraph
-├── state.py            # TypedDicts e fábrica de estado
+├── cli.py              # shim que direciona para o LangGraph CLI
+├── config.py           # carregamento de .env e fábrica de LLM/checkpointer
+├── graph.py            # StateGraph com nós parse/apply/summarize
+├── state.py            # estado enxuto (lista de tarefas em memória)
 ├── utils/
-│   ├── prompts.py      # SYSTEM_PROMPT + builders
-│   ├── rounds.py       # parsing/validação das três rodadas
-│   └── timeline.py     # helpers de logging
-├── docs/operations.md  # procedimentos operacionais
-├── tests/              # pytest cobrindo rounds/graph/cli
-├── logs/.gitkeep       # diretório padrão para saídas futuras
-├── __main__.py         # habilita `python -m agente_tarefas`
-└── main.py             # compatibilidade com import legado
+│   ├── prompts.py      # instruções para o LLM produzir JSON
+│   ├── nodes.py        # parse_operations, apply_operations, summarize_response
+│   └── operations.py   # schema + validação `{ "op": ... }`
+├── docs/               # notas operacionais
+├── tests/              # pytest com cenários de nós e grafo
+├── __main__.py         # preservado para alertar sobre o novo fluxo
+└── main.py             # compatibilidade de import legado
 ```
 
 ## Pré-requisitos
 - Python 3.12.3 via virtualenv do repositório (`source venv/bin/activate`).
-- Dependências globais do projeto instaladas (`pip install -r requirements.txt`).
-- Arquivo `.env` nesta pasta com `GEMINI_API_KEY` válido (as demais chaves seguem o padrão dos outros agentes).
+- Dependências instaladas com `pip install -r requirements.txt`.
+- `.env` com `GEMINI_API_KEY` (segue padrão dos demais agentes).
 
-## Como executar
+## Como executar (LangGraph CLI)
 ```bash
-python -m agente_tarefas
+venv/bin/langgraph dev --config langgraph.json --host 0.0.0.0
+```
+Depois de iniciar o servidor, use o painel/CLI interativo para enviar mensagens como:
+
+```text
+Adicione estudar e fazer compras, depois remova lavar louça
 ```
 
-O CLI imprime as falas como `Usuário:` e `Agente:` para acompanhar a conversa. O `thread_id` usa o prefixo configurável `AGENT_THREAD_PREFIX` e mantém a sessão intacta durante as três rodadas.
+O nó de parsing exige JSON estruturado e instrui o Gemini a responder algo como:
+```json
+[
+  {"op": "add", "tasks": ["estudar", "fazer compras"]},
+  {"op": "del", "tasks": ["lavar louça"]}
+]
+```
+Os nós subsequentes aplicam as operações na ordem recebida e sempre respondem com a lista resultante. Para listar sem alterações envie apenas “Liste minhas tarefas” (gera `{ "op": "listar" }`).
 
 ## Testes
 ```bash
 pytest agente_tarefas/tests -q
 ```
+Os testes cobrem validação das operações, execução sequencial do grafo e respostas para cenários ambíguos. Após alterações de código, execute também o fluxo manual descrito acima para garantir que o LangGraph CLI apresenta o comportamento esperado.
 
-Os testes validam validações de entrada (`utils/rounds.py`), a compilação do grafo (`graph.py`) e o fluxo feliz do CLI com um modelo fake.
+## Documentação complementar
+- `docs/operations.md`: contrato JSON completo, exemplos e instruções de log.
+- `docs/manual-test.md`: checklist de QA manual (adicionar/remover/listar/erros).
