@@ -1,7 +1,5 @@
-"""Backward-compatible entry point for running the CLI."""
+"""Enable `python -m agente_tarefas`."""
 from agente_tarefas.cli import main
-
-__all__ = ["main"]
 
 if __name__ == "__main__":  # pragma: no cover
     main()

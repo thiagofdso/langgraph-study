@@ -1,25 +1,45 @@
-# Agente de Tarefas em 3 Rodadas
+# agente_tarefas
 
-Projeto de estudo que demonstra um agente baseado em LangGraph executado no terminal para conduzir exatamente três interações consecutivas:
+Agente CLI em três rodadas construído com LangGraph seguindo o template v2.3. O fluxo mantém o mesmo comportamento anterior:
 
-1. **Rodada 1** – coletar lista inicial de tarefas e exibi-las numeradas.
-2. **Rodada 2** – permitir a seleção de uma tarefa para marcação como concluída.
-3. **Rodada 3** – adicionar novas tarefas opcionais e apresentar um resumo final.
+1. **Rodada 1** – coleta tarefas iniciais e confirma recebimento.
+2. **Rodada 2** – usuário marca uma tarefa como concluída.
+3. **Rodada 3** – adiciona novas tarefas opcionais e recebe o resumo final.
 
-## Pré-requisitos
-- Python 3.12.3 usando o virtualenv do repositório (`source venv/bin/activate`).
-- Dependências instaladas com `pip install -r requirements.txt`.
-- Arquivo `.env` nesta pasta com `GEMINI_API_KEY` e `GOOGLE_API_KEY` válidos (copie de `agente_simples/.env` e preencha suas chaves reais).
+## Estrutura
 
-## Execução Rápida
-```bash
-PYTHONPATH=. python agente_tarefas/main.py
+```
+agente_tarefas/
+├── cli.py              # fluxo interativo
+├── config.py           # carregamento do .env e fábrica de LLM/checkpointer
+├── graph.py            # construção do StateGraph
+├── state.py            # TypedDicts e fábrica de estado
+├── utils/
+│   ├── prompts.py      # SYSTEM_PROMPT + builders
+│   ├── rounds.py       # parsing/validação das três rodadas
+│   └── timeline.py     # helpers de logging
+├── docs/operations.md  # procedimentos operacionais
+├── tests/              # pytest cobrindo rounds/graph/cli
+├── logs/.gitkeep       # diretório padrão para saídas futuras
+├── __main__.py         # habilita `python -m agente_tarefas`
+└── main.py             # compatibilidade com import legado
 ```
 
-Durante a execução, o script vai:
-- Esperar explicitamente pela entrada do usuário em cada rodada.
-- Imprimir as falas como `Usuário:` e `Agente:` para facilitar a leitura.
-- Perguntar como lidar com duplicatas adicionadas na terceira rodada.
-- Encerrar automaticamente após o resumo da terceira rodada.
+## Pré-requisitos
+- Python 3.12.3 via virtualenv do repositório (`source venv/bin/activate`).
+- Dependências globais do projeto instaladas (`pip install -r requirements.txt`).
+- Arquivo `.env` nesta pasta com `GEMINI_API_KEY` válido (as demais chaves seguem o padrão dos outros agentes).
 
-Para reiniciar, execute novamente o comando acima.
+## Como executar
+```bash
+python -m agente_tarefas
+```
+
+O CLI imprime as falas como `Usuário:` e `Agente:` para acompanhar a conversa. O `thread_id` usa o prefixo configurável `AGENT_THREAD_PREFIX` e mantém a sessão intacta durante as três rodadas.
+
+## Testes
+```bash
+pytest agente_tarefas/tests -q
+```
+
+Os testes validam validações de entrada (`utils/rounds.py`), a compilação do grafo (`graph.py`) e o fluxo feliz do CLI com um modelo fake.
