@@ -1,7 +1,7 @@
-# Specification Quality Checklist: Reestruturar Agente Perguntas
+# Specification Quality Checklist: Graph-Managed Task Workflow
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2025-11-05
+**Created**: 2025-11-19
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality

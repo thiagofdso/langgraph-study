@@ -5,25 +5,34 @@ from typing import Any, Optional
 
 from langgraph.graph import END, StateGraph
 
-from agente_tarefas.config import AppConfig, settings
 from agente_tarefas.state import AgentState
-from agente_tarefas.utils.nodes import build_agent_node
+from agente_tarefas.utils.nodes import (
+    build_append_tasks_node,
+    build_complete_task_node,
+    build_prepare_round1_node,
+    resolve_app_config,
+)
 
 
-def _resolve_config(config: Any = None) -> AppConfig:
-    if config and hasattr(config, "create_llm") and hasattr(config, "create_checkpointer"):
-        return config  # type: ignore[return-value]
-    return settings
+def _register_round_nodes(workflow: StateGraph, app_config):
+    """Add the round-processing nodes to the workflow."""
+
+    workflow.add_node("prepare_round1", build_prepare_round1_node(app_config))
+    workflow.add_node("complete_task", build_complete_task_node(app_config))
+    workflow.add_node("append_tasks", build_append_tasks_node(app_config))
+
+    workflow.set_entry_point("prepare_round1")
+    workflow.add_edge("prepare_round1", "complete_task")
+    workflow.add_edge("complete_task", "append_tasks")
+    workflow.add_edge("append_tasks", END)
 
 
 def create_graph(config: Optional[Any] = None):
-    """Build and compile the single-node workflow for the agent."""
+    """Build and compile the workflow for the agent (multi-node ready)."""
 
-    app_config = _resolve_config(config)
+    app_config = resolve_app_config(config)
     workflow = StateGraph(AgentState)
-    workflow.add_node("agent", build_agent_node(app_config))
-    workflow.set_entry_point("agent")
-    workflow.add_edge("agent", END)
+    _register_round_nodes(workflow, app_config)
 
     # Placeholder for future middleware integration if needed.
     return workflow.compile(checkpointer=app_config.create_checkpointer())

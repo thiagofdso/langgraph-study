@@ -30,7 +30,7 @@ def build_initial_tasks(raw_items: Sequence[str]) -> List[TaskItem]:
 
 
 def select_completed_task(selection_raw: str, tasks_state: List[TaskItem], completed_ids: List[int]) -> int:
-    """Validate the numeric selection and update the task status."""
+    """Validate the numeric selection and return the selected task id."""
 
     if not selection_raw:
         raise ValueError("Informe um número válido para continuar.")
@@ -43,11 +43,12 @@ def select_completed_task(selection_raw: str, tasks_state: List[TaskItem], compl
     if selection in completed_ids:
         raise ValueError("Essa tarefa já foi concluída anteriormente. Escolha outra.")
 
+    completed_ids.append(selection)
     for task in tasks_state:
         if task["id"] == selection:
             task["status"] = "completed"
             break
-    completed_ids.append(selection)
+
     return selection
 
 

@@ -1,0 +1,160 @@
+openapi: 3.1.0
+info:
+  title: agente_tarefas Graph Contracts
+  version: 0.1.0
+  description: |
+    Revisado em 2025-11-19 (T003) para garantir que os payloads cobrem as três rodadas.
+    Ajustes pendentes após implementação:
+      - Confirmar se `duplicate_notes` precisa ser obrigatório quando duplicatas existirem.
+      - Adicionar exemplo concreto de payload para cada endpoint.
+servers:
+  - url: langgraph://agente-tarefas
+paths:
+  /round1/prepare:
+    post:
+      summary: Persists initial tasks and generates first agent response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                thread_id:
+                  type: string
+                  description: LangGraph thread identifier.
+                tasks:
+                  type: array
+                  items:
+                    type: string
+                  description: Raw task descriptions collected from Rodada 1.
+                prompt_messages:
+                  type: array
+                  items:
+                    type: object
+                  description: Serialized LangChain messages (System + Human) enviados ao node.
+              required: [thread_id, tasks, prompt_messages]
+      responses:
+        '200':
+          description: Estado atualizado pronto para Rodada 2.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoundState'
+  /round2/complete:
+    post:
+      summary: Marks a task as completed and returns progress feedback.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                thread_id:
+                  type: string
+                selected_id:
+                  type: integer
+                prompt_messages:
+                  type: array
+                  items:
+                    type: object
+              required: [thread_id, selected_id, prompt_messages]
+      responses:
+        '200':
+          description: Atualização com tarefa concluída e timeline expandida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoundState'
+        '400':
+          description: ID inválido ou rodada fora de ordem.
+  /round3/append:
+    post:
+      summary: Adds optional tasks, registers duplicates, and emits session summary.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                thread_id:
+                  type: string
+                new_tasks:
+                  type: array
+                  items:
+                    type: string
+                duplicate_decisions:
+                  type: array
+                  items:
+                    type: string
+                  description: Log textual usado para preencher timeline `notes`.
+                prompt_messages:
+                  type: array
+                  items:
+                    type: object
+              required: [thread_id, prompt_messages]
+      responses:
+        '200':
+          description: Estado final contendo resumo da sessão.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoundState'
+components:
+  schemas:
+    RoundState:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: object
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskItem'
+        completed_ids:
+          type: array
+          items:
+            type: integer
+        timeline:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimelineEntry'
+        duplicate_notes:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+          description: Espaço para futuros nodes/middlewares.
+      required: [messages, tasks, completed_ids, timeline]
+    TaskItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, completed]
+        source_round:
+          type: string
+          enum: [round1, round3]
+      required: [id, description, status, source_round]
+    TimelineEntry:
+      type: object
+      properties:
+        round_id:
+          type: string
+          enum: [round1, round2, round3]
+        user_input:
+          type: string
+        agent_response:
+          type: string
+        notes:
+          type: string
+      required: [round_id, user_input, agent_response]

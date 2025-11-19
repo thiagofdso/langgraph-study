@@ -64,3 +64,12 @@ suas responsabilidades. A meta é manter a nomenclatura consistente em futuros p
 | Nome do node | Função | Definição de utilitário |
 | --- | --- | --- |
 | `evaluate` | Normaliza a pergunta, ranqueia o FAQ, decide entre resposta automática ou `interrupt`/HITL e aplica `resume_with_human_response` com notas humanas. | `agente_perguntas/utils/nodes.py#L43-L109` |
+
+### agente_tarefas *(planejado)*
+
+| Nome do node | Função | Definição de utilitário |
+| --- | --- | --- |
+| `prepare_round1` | Receber tarefas coletadas pelo CLI, normalizar IDs, gravar timeline inicial e invocar o modelo para a primeira resposta. | **Novo** em `agente_tarefas/utils/nodes.py` (será adicionado na refatoração `001-refactor-task-graph`). |
+| `complete_task` | Validar o ID informado na Rodada 2, atualizar `tasks`/`completed_ids` e registrar o progresso antes de chamar o LLM. | **Novo** em `agente_tarefas/utils/nodes.py`. |
+| `append_tasks` | Processar novas tarefas (com duplicatas e notas), gerar IDs adicionais e preparar o resumo final da Rodada 3. | **Novo** em `agente_tarefas/utils/nodes.py`. |
+| `summarize_session` *(opcional)* | Consolidar timeline/duplicatas em um fechamento único reutilizável pelo CLI e LangGraph CLI. | **Novo** em `agente_tarefas/utils/nodes.py` caso seja necessário separar a geração do resumo. |

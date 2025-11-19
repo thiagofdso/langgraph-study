@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Annotated, List, Literal, Sequence, TypedDict
+from typing import Annotated, Dict, List, Literal, Sequence, TypedDict
 
 from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
@@ -23,23 +23,35 @@ class TimelineEntry(TypedDict, total=False):
 
 
 class AgentState(TypedDict):
+    """Graph state exchanged between nodes/CLI executions."""
+
     messages: Annotated[List[BaseMessage], add_messages]
     tasks: List[TaskItem]
     completed_ids: List[int]
     timeline: List[TimelineEntry]
+    duplicate_notes: List[str]
+    round_payload: Dict[str, object]
 
 
 @dataclass(slots=True)
 class StateFactory:
-    """Create default state payloads for graph executions."""
+    """Factory helpers that produce AgentState dictionaries."""
 
     def build(self, *, messages: Sequence[BaseMessage]) -> AgentState:
+        """Create a state object preloaded with the provided messages."""
         return {
             "messages": list(messages),
             "tasks": [],
             "completed_ids": [],
             "timeline": [],
+            "duplicate_notes": [],
+            "round_payload": {},
         }
+
+    def empty(self) -> AgentState:
+        """Return a blank state with no messages (useful for tests)."""
+
+        return self.build(messages=[])
 
 
 state_factory = StateFactory()
